@@ -12,26 +12,15 @@ public final class Quandles {
         while (!queue.isEmpty()) {
             Quandle quandle = queue.remove();
 
-            if (quandle.isTriangleComplete()) {
-                if (quandle.isTriangleValid()) {
+            if (quandle.isComplete()) {
+                if (quandle.isValid()) {
                     quandles.add(quandle);
                 }
             } else {
-                if (quandle.isTriangleComplete()) {
-                    for (byte x = 0; x < n * n; ++x) {
-                        Quandle copy = quandle.copy();
-                        replaceNextPhiUnknown(copy, n, x);
-                        if (fill(copy, n)) {
-                            queue.offer(copy);
-                        }
-                    }
-                } else {
-                    for (byte x = 0; x < n; ++x) {
-                        Quandle copy = quandle.copy();
-                        replaceNextTriangleUnknown(copy, n, x);
-                        if (fill(copy, n)) {
-                            queue.offer(copy);
-                        }
+                for (byte x = 0; x < n; ++x) {
+                    Quandle copy = quandle.copy();
+                    if (replaceNextUnknown(copy, n, x) && fill(copy, n)) {
+                        queue.offer(copy);
                     }
                 }
             }
@@ -40,41 +29,135 @@ public final class Quandles {
         return quandles;
     }
 
-    private static boolean fill(Quandle quandle, byte n) {
-
+    private static boolean fill(Quandle q, byte n) {
         boolean changes = true;
 
         while (changes) {
+
             changes = false;
 
-            for (byte x = 0; x < n; ++x) {
-                if (quandle.get(x, x) == -1) {
-                    quandle.set(x, x, x);
-                    changes = true;
-                } else if (quandle.get(x, x) != x) {
+            for (byte a = 0; a < n; ++a) {
+
+                // a ▷ a = a
+                if (q.right(a, a) != a) {
+                    if (q.right(a, a) == -1) {
+                        q.right(a, a, a);
+                        changes = true;
+                    }
+
                     return false;
                 }
 
-                for (byte y = 0; y < n; ++y) {
-                    if (quandle.get(x, y) != -1) {
-                        if (quandle.get(quandle.get(x, y), y) == -1) {
-                            quandle.set(quandle.get(x, y), y, x);
-                            changes = true;
-                        } else if (quandle.get(quandle.get(x, y), y) != x) {
+                // a ◁ a = a
+                if (q.left(a, a) != a) {
+                    if (q.left(a, a) == -1) {
+                        q.left(a, a, a);
+                        changes = true;
+                    }
+
+                    return false;
+                }
+
+                for (byte b = 0; b < n; ++b) {
+
+                    byte aLb = q.left(a, b);
+                    byte bRa = q.right(b, a);
+                    byte aRb = q.right(a, b);
+
+                    if (aRb != -1 && q.left(b, aRb) != a) {
+                        if (q.left(b, aRb) == -1) {
+                            q.left(b, aRb, a);
+                        } else {
                             return false;
                         }
                     }
 
-                    for (byte z = 0; z < n; ++z) {
-                        if (quandle.get(y, z) != -1 && quandle.get(x, y) != -1 && quandle.get(x, z) != -1) {
-                            if (quandle.get(x, quandle.get(y, z)) == -1 && quandle.get(quandle.get(x, y), quandle.get(x, z)) != -1) {
-                                quandle.set(x, quandle.get(y, z), quandle.get(quandle.get(x, y), quandle.get(x, z)));
-                                changes = true;
-                            } else if (quandle.get(x, quandle.get(y, z)) != -1 && quandle.get(quandle.get(x, y), quandle.get(x, z)) == -1) {
-                                quandle.set(quandle.get(x, y), quandle.get(x, z), quandle.get(x, quandle.get(y, z)));
-                                changes = true;
-                            } else if (quandle.get(x, quandle.get(y, z)) != quandle.get(quandle.get(x, y), quandle.get(x, z))) {
-                                return false;
+                    // (a ◁ b) ▷ a = b
+                    if (aLb != -1) {
+                        if (q.right(aLb, a) == -1) {
+                            q.right(aLb, a, b);
+                            changes = true;
+                        } else if (q.right(aLb, a) != b) {
+                            return false;
+                        }
+                    }
+
+                    // a ◁ (b ▷ a) = b
+                    if (bRa != -1) {
+                        if (q.left(a, bRa) == -1) {
+                            q.left(a, bRa, b);
+                            changes = true;
+                        } else if (q.left(a, bRa) != b) {
+                            return false;
+                        }
+                    }
+
+                    for (byte c = 0; c < n; ++c) {
+
+                        byte bLc = q.left(b, c);
+                        byte aLc = q.left(a, c);
+                        byte cRb = q.right(c, b);
+                        byte cRa = q.right(c, a);
+                        byte bRc = q.right(b, c);
+                        byte cLb = q.left(c, b);
+
+                        // a ◁ (b ◁ c) = (a ◁ b) ◁ (a ◁ c)
+                        if (bLc != -1 && aLb != -1 && aLc != -1) {
+                            if (q.left(a, bLc) != q.left(aLb, aLc)) {
+                                if (q.left(aLb, aLc) == -1) {
+                                    q.left(aLb, aLc, q.left(a, bLc));
+                                    changes = true;
+                                } else if (q.left(a, bLc) == -1) {
+                                    q.left(a, bLc, q.left(aLb, aLc));
+                                    changes = true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // (c ▷ b) ▷ a = (c ▷ a) ▷ (b ▷ a)
+                        if (cRb != -1 && cRa != -1 && bRa != -1) {
+                            if (q.right(cRb, a) != q.right(cRa, bRa)) {
+                                if (q.right(cRb, a) == -1) {
+                                    q.right(cRb, a, q.right(cRa, bRa));
+                                    changes = true;
+                                } else if (q.right(cRa, bRa) == -1) {
+                                    q.right(cRa, bRa, q.right(cRb, a));
+                                    changes = true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // a ◁ (b ▷ c) = (a ◁ b) ▷ (a ◁ c)
+                        if (bRc != -1 && aLb != -1 && aLc != -1) {
+                            if (q.left(a, bRc) != q.right(aLb, aLc)) {
+                                if (q.left(a, bRc) == -1) {
+                                    q.left(a, bRc, q.right(aLb, aLc));
+                                    changes = true;
+                                } else if (q.right(aLb, aLc) == -1) {
+                                    q.right(aLb, aLc, q.left(a, bRc));
+                                    changes = true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // (c ◁ b) ▷ a = (c ▷ a) ◁ (b ▷ a)
+                        if (cLb != -1 && cRa != -1 && bRa != -1) {
+                            if (q.right(cLb, a) != q.left(cRa, bRa)) {
+                                if (q.right(cLb, a) == -1) {
+                                    q.right(cLb, a, q.left(cRa, bRa));
+                                    changes = true;
+                                } else if (q.left(cRa, bRa) == -1) {
+                                    q.left(cRa, bRa, q.right(cLb, a));
+                                    changes = true;
+                                } else {
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -85,25 +168,26 @@ public final class Quandles {
         return true;
     }
 
-    private static void replaceNextTriangleUnknown(Quandle quandle, byte n, byte value) {
+    private static boolean replaceNextUnknown(Quandle quandle, byte n, byte value) {
         for (byte i = 0; i < n; ++i) {
             for (byte j = 0; j < n; ++j) {
-                if (quandle.get(i, j) == -1) {
-                    quandle.set(i, j, value);
-                    return;
-                }
-            }
-        }
-    }
+                if (quandle.right(i, j) == -1) {
 
-    private static void replaceNextPhiUnknown(Quandle quandle, byte n, byte value) {
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                if (quandle.getPhi(i, j) == -1) {
-                    quandle.setPhi(i, j, value);
-                    return;
+                    quandle.right(i, j, value);
+
+                    if (quandle.left(j, value) != i) {
+                        if (quandle.left(j, value) == -1) {
+                            quandle.left(j, value, i);
+                        } else {
+                            return false;
+                        }
+                    }
+
+                    return true;
                 }
             }
         }
+
+        return false;
     }
 }
