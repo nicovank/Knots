@@ -2,7 +2,6 @@ package com.nvankempen.quandles;
 
 import com.nvankempen.utils.MatrixToTable;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.nvankempen.Utils.mod;
@@ -83,6 +82,21 @@ public final class QuandlePhi {
                             && mod(xPy + phi(xRy, z) - xPz - phi(xRz, yRz), quandle.n()) != 0) {
 
                         return false;
+                    }
+
+                    if (quandle instanceof SingQuandle) {
+
+                        SingQuandle q = (SingQuandle) quandle;
+                        byte xCz = q.circle(x, z);
+                        byte xDz = q.disc(x, z);
+
+                        if (phi(quandle.left(y, xCz), x) != -1
+                                && phi(xCz, y) != -1
+                                && phi(z, quandle.right(y, xDz)) != -1
+                                && phi(y, xDz) != -1
+                                && phi(quandle.left(y, xCz), x) - phi(xCz, y) != - phi(z, quandle.right(y, xDz)) + phi(y, xDz)) {
+                            return false;
+                        }
                     }
                 }
             }

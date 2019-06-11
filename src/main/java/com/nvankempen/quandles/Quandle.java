@@ -67,8 +67,10 @@ public class Quandle extends Rack {
 
         for (byte x = 0; x < n; ++x) {
             for (byte y = 0; y < n; ++y) {
-                quandle.right(x, y, (byte) mod(a * x + mod(1 - a, n) * y, n));
-                quandle.left(y, (byte) mod(a * x + mod(1 - a, n) * y, n), x);
+                byte z = (byte) mod(a * x + (1 - a) * y, n);
+
+                quandle.right(x, y, z);
+                quandle.left(y, z, x);
             }
         }
 

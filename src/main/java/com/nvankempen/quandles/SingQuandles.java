@@ -4,16 +4,7 @@ import java.util.*;
 
 public class SingQuandles {
 
-//    public static Set<SingQuandle> findAPhi(byte n) {
-//
-//    }
-
     public static Set<SingQuandle> generate(Quandle q) {
-
-        if (!(q.isComplete() && q.isValid())) {
-            throw new RuntimeException("Too lazy to make this an actual exception.");
-        }
-
         Queue<SingQuandle> queue = new LinkedList<>();
         Set<SingQuandle> quandles = new HashSet<>();
         queue.offer(new SingQuandle(q));
@@ -29,7 +20,9 @@ public class SingQuandles {
                 for (byte x = 0; x < q.n(); ++x) {
                     SingQuandle copy = quandle.copy();
                     if (replaceNextUnknown(copy, q.n(), x) && fill(copy, q.n())) {
-                        queue.offer(copy);
+                        if (copy.isValid()) {
+                            queue.offer(copy);
+                        }
                     }
                 }
             }

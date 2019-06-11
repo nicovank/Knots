@@ -18,12 +18,36 @@ public class Main {
 //            System.out.println(quandle);
 //        }
 
-        byte n = 5;
-        byte t = 4;
+        Quandle.alexander((byte) 4, (byte) 2);
 
-        Quandle quandle = Quandle.alexander(n, t);
-        System.out.println(quandle);
-        QuandlePhi.generate(quandle).forEach(System.out::println);
+        byte n = 6;
+
+        for (byte t = 1; t < n; ++t) {
+            for (byte B = 0; B < n; ++B) {
+                SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
+
+                if (quandle.isValid()) {
+                    for (byte x = 0; x < n; ++x) {
+                        for (byte y = 0; y < n; ++y) {
+                            quandle.circle(x, y, (byte) mod((1 - t - B) * x + (t + B) * y, n));
+                            quandle.disc(x, y, (byte) mod((1 - B) * x + B * y, n));
+                        }
+                    }
+
+                    System.out.println("[t, B] = [" + t + ", " + B + "]");
+                    System.out.println(quandle.isComplete());
+                    for(QuandlePhi phi : QuandlePhi.generate(quandle)) {
+                        if (Tests.P3(quandle, phi.phi())) {
+                            System.out.println(phi);
+                        }
+                    }
+                }
+            }
+        }
+
+//        System.out.println(quandle);
+//         QuandlePhi.generate(quandle).forEach(System.out::println);
+//        System.out.println(QuandlePhi.generate(quandle).size());
 
 //        for (byte B = 0; B < n; ++B) {
 //            SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
@@ -36,7 +60,7 @@ public class Main {
 //
 //            // This will also check circle and disc
 //            if (quandle.isValid()) {
-//                System.out.printf("[a, b] = [%d, %d] %n", t, B);
+//                System.out.printf("[t, B] = [%d, %d] %n", t, B);
 //
 //                Set<Phi> functions = Phi.generate(quandle);
 //                for (Phi phi : functions) {
@@ -44,7 +68,6 @@ public class Main {
 //                }
 //            }
 //        }
-
 
 
 //        for (byte n = 0; n >= 0; ++n) {

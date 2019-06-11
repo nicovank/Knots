@@ -1,10 +1,13 @@
 package com.nvankempen.quandles;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.nvankempen.Utils.mod;
 
+/**
+ * Given the quandle operation and its inverse and both R1 and R2, this class has utilities to generate all possible Phi
+ * and Phi prime functions that will be valid.
+ */
 public final class Phi {
     private final SingQuandle quandle;
     private final byte[][] phi;
