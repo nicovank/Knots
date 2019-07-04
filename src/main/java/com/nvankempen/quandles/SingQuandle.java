@@ -119,60 +119,54 @@ public class SingQuandle extends Quandle {
         for (byte x = 0; x < super.n(); ++x) {
             for (byte y = 0; y < super.n(); ++y) {
 
+                byte xLy = left(x, y);
                 byte xDy = disc(x, y);
-                byte xCy = circle(x, y);
-                byte yRx = right(y, x);
                 byte xRy = right(x, y);
+                byte xCy = circle(x, y);
 
-                // R1(y, R2(x, y)) = x
-                if (circle(y, xDy) != -1 && circle(y, xDy) != x) {
+                // R2(x, y) = R1(y, x ▷ y)
+                if (xDy != -1
+                        && circle(y, xRy) != -1
+                        && xDy != circle(y, xRy)) {
+
                     return false;
                 }
 
-                // R2(R2(x, y), R1(x, y)) = x
-                if (disc(xDy, xCy) != -1 && disc(xDy, xCy) != x) {
-                    return false;
-                }
+                // R1(x, y) ▷ R2(x, y) = R2(y, x ▷ y)
+                if (right(xCy, xDy) != -1
+                        && disc(y, xRy) != -1
+                        && right(xCy, xDy) != disc(y, xRy)) {
 
-                // R2(R1(x, y), x) = y
-                if (disc(xCy, x) != -1 && disc(xCy, x) != y) {
-                    return false;
-                }
-
-                // R1(R2(x, y), R1(x, y)) = y
-                if (circle(xDy, xCy) != -1 && circle(xDy, xCy) != y) {
-                    return false;
-                }
-
-                // R1(x, y) = R2(y ▷ x, x)
-                if (xCy != -1 && disc(yRx, x) != -1 && xCy != disc(yRx, x)) {
-                    return false;
-                }
-
-                // R2(x, y) = R1(y ▷ x, x) ▷ R2(y ▷ x, x)
-                if (xDy != -1 && right(circle(yRx, x), disc(yRx, x)) != -1 && right(circle(yRx, x), disc(yRx, x)) != xDy) {
                     return false;
                 }
 
                 for (byte z = 0; z < super.n(); ++z) {
 
-                    byte yRz = right(y, z);
-                    byte xDz = disc(x, z);
+                    byte zRy = right(z ,y);
                     byte xCz = circle(x, z);
-                    byte zRy = right(z, y);
+                    byte xDz = disc(x, z);
 
-                    // (y ▷ z) ▷ R2(x, z) = (y ▷ x) ▷ R1(x,  z)
-                    if (right(yRz, xDz) != -1 && right(yRx, xCz) != -1 && right(yRz, xDz) != right(yRx, xCz)) {
+                    // R1(x ◁ y, z) ▷ y = R1(x, z ▷ y)
+                    if (right(circle(xLy, z), y) != -1
+                            && circle(x, zRy) != -1
+                            && right(circle(xLy, z), y) != circle(x, zRy)) {
+
                         return false;
                     }
 
-                    // R1(x ▷ y, z) ▷ y = R1(x, z ▷ y)
-                    if (right(circle(xRy, z), y) != -1 && circle(x, zRy) != -1 && right(circle(xRy, z), y) != circle(x, zRy)) {
+                    // R2(x ◁ y, z) = R2(x, z ▷ y) ◁ y
+                    if (disc(xLy, z) != -1
+                            && left(disc(x, zRy), y) != -1
+                            && disc(xLy, z) != left(disc(x, zRy), y)) {
+
                         return false;
                     }
 
-                    // R2(x ▷ y, z) = R2(x, z ▷ y) ▷ y
-                    if (disc(xRy, z) != -1 && right(disc(x, zRy), y) != -1 && disc(xRy, z) != right(disc(x, zRy), y)) {
+                    // (y ◁ R1(x, z)) ▷ x = (y ▷ R2(x, z)) ◁ z
+                    if (right(left(y, xCz), x) != -1
+                            && left(right(y, xDz), z) != -1
+                            && right(left(y, xCz), x) != left(right(y, xDz), z)) {
+
                         return false;
                     }
                 }

@@ -18,11 +18,6 @@ public final class Phi {
     private final byte[][] prime;
     private final byte m;
 
-    private static final boolean[] P = {
-            // P0 does not exist.
-            false, true, true, true, true, true
-    };
-
     public Phi(SingQuandle quandle, byte m) {
         this.m = m;
         this.quandle = quandle;
@@ -96,7 +91,7 @@ public final class Phi {
         for (byte x = 0; x < quandle.n(); ++x) {
 
             // ϕ(x, x) = 0
-            if (P[1] && phi[x][x] != -1 && phi[x][x] != 0) {
+            if (phi[x][x] != -1 && phi[x][x] != 0) {
                 return false;
             }
 
@@ -110,7 +105,7 @@ public final class Phi {
                 byte xLy = quandle.left(x, y);
 
                 // ϕ'(x, y) + ϕ(R1(x, y), R2(x, y)) = ϕ(x, y) + ϕ'(y, x ▷ y)
-                if (P[4] && xQy != -1
+                if (xQy != -1
                         && phi(xCy, xDy) != -1
                         && xPy != -1
                         && prime(y, xRy) != -1
@@ -129,7 +124,7 @@ public final class Phi {
                     byte xDz = quandle.disc(x, z);
 
                     // ϕ(x, y) + ϕ(x ▷ y, z) = ϕ(x, z) + ϕ(x ▷ z, y ▷ z)
-                    if (P[2] && xPy != -1
+                    if (xPy != -1
                             && phi(xRy, z) != -1
                             && xPz != -1
                             && phi(xRz, yRz) != -1
@@ -138,24 +133,24 @@ public final class Phi {
                         return false;
                     }
 
-                    // ϕ(y, R2(x, z ▷ y)) + ϕ(R1(x ◁ y, z), y) + ϕ'(x ◁ y, z) = ϕ(y, x) + ϕ(z, y) + ϕ'(x, z ▷ y)
-                    if (P[5] && yPx != -1
+                    // - ϕ(x ◁ y, y) + ϕ'(x ◁ y, z) + ϕ(R1(x ◁ y, z), y) = ϕ(z, y) + ϕ'(x, z ▷ y) - ϕ(R2(x, z ▷ y) ◁ y, y)
+                    if (phi(xLy, y) != -1
                             && prime(xLy, z) != -1
                             && phi(quandle.circle(xLy, z), y) != -1
-                            && zPy != -1
+                            && phi(z, y) != -1
                             && prime(x, zRy) != -1
-                            && phi(y, quandle.disc(x, zRy)) != -1
-                            && mod(- yPx + prime(xLy, z) + phi(quandle.circle(xLy, z), y) - zPy - prime(x, zRy) + phi(y, quandle.disc(x, zRy)), m) != 0) {
+                            && phi(quandle.left(quandle.disc(x, zRy), y), y) != -1
+                            && - phi(xLy, y) + prime(xLy, z) + phi(quandle.circle(xLy, z), y) != phi(z, y) + prime(x, zRy) - phi(quandle.left(quandle.disc(x, zRy), y), y)) {
 
                         return false;
                     }
 
-                    // ϕ(y ◁ R1(x, z), x) + ϕ(y, R2(x, z)) = ϕ(z, y ▷ R2(x, z)) + ϕ(R1(x, z), y)
-                    if (P[3] && phi(quandle.left(y, xCz), x) != -1
-                            && phi(xCz, y) != -1
-                            && phi(z, quandle.right(y, xDz)) != -1
+                    // ϕ(y ◁ R1(x, z), x) - ϕ(y ◁ R1(x, z), R1(x, z)) = - ϕ((y ▷ R2(x, z)) ◁ z, z) + ϕ(y, R2(x, z))
+                    if (phi(quandle.left(y, xCz), x) != -1
+                            && phi(quandle.left(y,xCz), xCz) != -1
+                            && phi(quandle.left(quandle.right(y, xDz), z), z) != -1
                             && phi(y, xDz) != -1
-                            && mod(phi(quandle.left(y, xCz), x) + phi(y, xDz) - phi(z, quandle.right(y, xDz)) - phi(xCz, y), m) != 0) {
+                            && phi(quandle.left(y, xCz), x) - phi(quandle.left(y,xCz), xCz) != - phi(quandle.left(quandle.right(y, xDz), z), z) + phi(y, xDz)) {
 
                         return false;
                     }
@@ -273,7 +268,8 @@ public final class Phi {
 
     @Override
     public String toString() {
-        return Arrays.deepToString(phi) + " " + Arrays.deepToString(prime);
+        return (Arrays.deepToString(phi) + " " + Arrays.deepToString(prime))
+                .replaceAll("\\[", "{").replaceAll("]", "}");
     }
 
     public String latex() {

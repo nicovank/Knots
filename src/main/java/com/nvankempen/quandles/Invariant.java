@@ -9,7 +9,7 @@ public final class Invariant {
 
     }
 
-    public static Polynomial compute(byte n, byte m, byte B, Phi phi) {
+    public static Polynomial compute(byte n, byte m, SingQuandle quandle, Phi phi) {
 
         Polynomial polynomial = new Polynomial();
 
@@ -23,9 +23,14 @@ public final class Invariant {
 //                }
 
 //                polynomial.add(phi.prime(x, y) + phi.prime((byte) Utils.mod(3 * x + 3 * y, n), (byte) Utils.mod(2 * x + 4 * y, n)));
-                polynomial.add(phi.phi(x, y) + phi.prime(y, (byte) Utils.mod(2 * y - x, n)));
 //                polynomial.add(phi.prime(x, y) + phi.phi((byte) Utils.mod(8 * x + 3 * y, n), (byte) Utils.mod(7 * x + 4 * y, n)));
 //                polynomial.add(phi.prime(x, y) + phi.prime((byte) Utils.mod(3 * x + 8 * y, n), (byte) Utils.mod(2 * x + 9 * y, n)));
+
+
+//                polynomial.add(phi.phi(x, y) + phi.prime(y, (byte) Utils.mod(2 * y - x, n)));
+//                polynomial.add(phi.prime(x, y) + phi.prime(quandle.circle(x, y), quandle.disc(x, y)));
+//                polynomial.add(phi.prime(x, y) + phi.phi(quandle.circle(x, y), quandle.disc(x, y)));
+                polynomial.add(phi.phi(quandle.left(y, x), x) + phi.prime(quandle.left(y, x), x));
             }
         }
 
