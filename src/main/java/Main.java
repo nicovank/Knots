@@ -5,6 +5,10 @@ import java.util.Set;
 import static com.nvankempen.Utils.mod;
 
 public class Main {
+    //
+//        System.out.printf("Found %d quandles of order %d. %n", quandles.size(), n);
+//        System.out.printf("Executed in %f seconds. %n", ((double) (end - start)) / 1000000000D);
+//
     public static void main(String[] args) {
 
 //        long start = System.nanoTime();
@@ -17,76 +21,74 @@ public class Main {
 //        for (Quandle quandle : quandles) {
 //            System.out.println(quandle);
 //        }
+        byte n = 10;
+        byte m = 2;
+        byte t = -1;
+        byte B = 8;
 
-        Quandle.alexander((byte) 4, (byte) 2);
+        SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
 
-        byte n = 6;
-
-        for (byte t = 1; t < n; ++t) {
-            for (byte B = 0; B < n; ++B) {
-                SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
-
-                if (quandle.isValid()) {
-                    for (byte x = 0; x < n; ++x) {
-                        for (byte y = 0; y < n; ++y) {
-                            quandle.circle(x, y, (byte) mod((1 - t - B) * x + (t + B) * y, n));
-                            quandle.disc(x, y, (byte) mod((1 - B) * x + B * y, n));
-                        }
-                    }
-
-                    System.out.println("[t, B] = [" + t + ", " + B + "]");
-                    System.out.println(quandle.isComplete());
-                    for(QuandlePhi phi : QuandlePhi.generate(quandle)) {
-                        if (Tests.P3(quandle, phi.phi())) {
-                            System.out.println(phi);
-                        }
-                    }
-                }
+        for (byte x = 0; x < n; ++x) {
+            for (byte y = 0; y < n; ++y) {
+                quandle.circle(x, y, (byte) mod((1 - t - B) * x + (t + B) * y, n));
+                quandle.disc(x, y, (byte) mod((1 - B) * x + B * y, n));
             }
         }
 
-//        System.out.println(quandle);
-//         QuandlePhi.generate(quandle).forEach(System.out::println);
-//        System.out.println(QuandlePhi.generate(quandle).size());
+        if (!quandle.isValid()) {
+            System.out.println("Nope.");
+        }
 
-//        for (byte B = 0; B < n; ++B) {
-//            SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
-//            for (byte x = 0; x < n; ++x) {
-//                for (byte y = 0; y < n; ++y) {
-//                    quandle.circle(x, y, (byte) mod((1 - t - B) * x + (t + B) * y, n));
-//                    quandle.disc(x, y, (byte) mod((1 - B) * x + B * y, n));
-//                }
-//            }
-//
-//            // This will also check circle and disc
-//            if (quandle.isValid()) {
-//                System.out.printf("[t, B] = [%d, %d] %n", t, B);
-//
-//                Set<Phi> functions = Phi.generate(quandle);
-//                for (Phi phi : functions) {
-//                    System.out.println("\t" + phi);
+        Phi.generate(quandle, m).forEach(phi -> {
+            System.out.println(phi);
+            System.out.println(Invariant.compute(n, m, B, phi).toString("u"));
+        });
+
+//        {
+//            byte t = -1;
+//            if (mod(t * t, n) != 1) {
+//                System.out.println("Rule 1.");
+//            } else {
+//                for (byte B = 0; B < n; ++B) {
+//                    if (mod(B * (1 + t), n) != 0) {
+//                        System.out.println("Rule 2.");
+//                    } else if (mod(t - (1 - B) * (1 - B), n) != 0) {
+//                        System.out.println("Rule 3.");
+//                    }
 //                }
 //            }
 //        }
 
-
-//        for (byte n = 0; n >= 0; ++n) {
-//            System.out.println("n = " + n);
-//            for (byte t = 1; t < n; ++t) {
-//                SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
+//        for (byte t = (byte) (1 - n); t < n; ++t) {
+//            if (mod(t * t, n) == 1) {
+//                for (byte B = 0; B < n; ++B) {
+//                    if (mod(B * (1 + t), n) == 0 && mod(t - (1 - B) * (1 - B), n) == 0) {
+//                        SingQuandle quandle = new SingQuandle(Quandle.alexander(n, t));
 //
-//                if (quandle.isValid()) { // This will only check the triangle operations since circle and disc are not defined yet.
-//                    for (byte B = 0; B < n; ++B) {
-//                        for (byte x = 0; x < n; ++x) {
-//                            for (byte y = 0; y < n; ++y) {
-//                                quandle.circle(x, y, (byte) mod((1 - t - B) * x + (t + B) * y, n));
-//                                quandle.disc(x, y, (byte) mod((1 - B) * x + B * y, n));
-//                            }
-//                        }
-//
-//                        // This will also check circle and disc
 //                        if (quandle.isValid()) {
-//                            System.out.printf("[a, b] = [%d, %d] %n", t, B);
+//                            for (byte x = 0; x < n; ++x) {
+//                                for (byte y = 0; y < n; ++y) {
+//                                    quandle.circle(x, y, (byte) mod((1 - t - B) * x + (t + B) * y, n));
+//                                    quandle.disc(x, y, (byte) mod((1 - B) * x + B * y, n));
+//                                }
+//                            }
+//
+////                            if (t == -1) {
+////                                System.out.println("[t, B] = [" + t + ", " + B + "]");
+////                                for (Phi phi : Phi.generate(quandle, m)) {
+////                                    if (!phi.isTrivial()) {
+////                                        System.out.println(phi);
+////                                    }
+////                                }
+////                            }
+//
+//                            System.out.println("[t, B] = [" + t + ", " + B + "]");
+//
+//                            for (Phi phi : Phi.generate(quandle, m)) {
+//                                if (!phi.isTrivial()) {
+//                                    System.out.println(phi);
+//                                }
+//                            }
 //                        }
 //                    }
 //                }

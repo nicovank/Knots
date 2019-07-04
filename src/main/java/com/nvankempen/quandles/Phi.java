@@ -1,6 +1,7 @@
 package com.nvankempen.quandles;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.nvankempen.Utils.mod;
 
@@ -9,11 +10,21 @@ import static com.nvankempen.Utils.mod;
  * and Phi prime functions that will be valid.
  */
 public final class Phi {
+
+    private static final int MAX_QUEUE_SIZE = Integer.MAX_VALUE;
+
     private final SingQuandle quandle;
     private final byte[][] phi;
     private final byte[][] prime;
+    private final byte m;
 
-    public Phi(SingQuandle quandle) {
+    private static final boolean[] P = {
+            // P0 does not exist.
+            false, true, true, true, true, true
+    };
+
+    public Phi(SingQuandle quandle, byte m) {
+        this.m = m;
         this.quandle = quandle;
         this.phi = new byte[quandle.n()][quandle.n()];
         this.prime = new byte[quandle.n()][quandle.n()];
@@ -28,10 +39,11 @@ public final class Phi {
         }
     }
 
-    public Phi(SingQuandle quandle, byte[][] phi, byte[][] prime) {
+    public Phi(SingQuandle quandle, byte[][] phi, byte[][] prime, byte m) {
         this.quandle = quandle;
         this.phi = phi;
         this.prime = prime;
+        this.m = m;
     }
 
     public byte[][] phi() {
@@ -77,14 +89,14 @@ public final class Phi {
                 }
             }
 
-            return new Phi(quandle, pcopy, qcopy);
+            return new Phi(quandle, pcopy, qcopy, m);
     }
 
     public boolean isValid() {
         for (byte x = 0; x < quandle.n(); ++x) {
 
             // ϕ(x, x) = 0
-            if (phi[x][x] != -1 && phi[x][x] != 0) {
+            if (P[1] && phi[x][x] != -1 && phi[x][x] != 0) {
                 return false;
             }
 
@@ -98,11 +110,11 @@ public final class Phi {
                 byte xLy = quandle.left(x, y);
 
                 // ϕ'(x, y) + ϕ(R1(x, y), R2(x, y)) = ϕ(x, y) + ϕ'(y, x ▷ y)
-                if (xQy != -1
+                if (P[4] && xQy != -1
                         && phi(xCy, xDy) != -1
                         && xPy != -1
                         && prime(y, xRy) != -1
-                        && mod(xQy + phi(xCy, xDy) - xPy - prime(y, xRy), quandle.n()) != 0) {
+                        && mod(xQy + phi(xCy, xDy) - xPy - prime(y, xRy), m) != 0) {
 
                     return false;
                 }
@@ -117,33 +129,33 @@ public final class Phi {
                     byte xDz = quandle.disc(x, z);
 
                     // ϕ(x, y) + ϕ(x ▷ y, z) = ϕ(x, z) + ϕ(x ▷ z, y ▷ z)
-                    if (xPy != -1
+                    if (P[2] && xPy != -1
                             && phi(xRy, z) != -1
                             && xPz != -1
                             && phi(xRz, yRz) != -1
-                            && mod(xPy + phi(xRy, z) - xPz - phi(xRz, yRz), quandle.n()) != 0) {
+                            && mod(xPy + phi(xRy, z) - xPz - phi(xRz, yRz), m) != 0) {
 
                         return false;
                     }
 
                     // ϕ(y, R2(x, z ▷ y)) + ϕ(R1(x ◁ y, z), y) + ϕ'(x ◁ y, z) = ϕ(y, x) + ϕ(z, y) + ϕ'(x, z ▷ y)
-                    if (yPx != -1
+                    if (P[5] && yPx != -1
                             && prime(xLy, z) != -1
                             && phi(quandle.circle(xLy, z), y) != -1
                             && zPy != -1
                             && prime(x, zRy) != -1
                             && phi(y, quandle.disc(x, zRy)) != -1
-                            && mod(phi(y, quandle.disc(x, zRy)) + phi(quandle.circle(xLy, z), y) + prime(xLy, z) - yPx - zPy - prime(x, zRy), quandle.n()) != 0) {
+                            && mod(- yPx + prime(xLy, z) + phi(quandle.circle(xLy, z), y) - zPy - prime(x, zRy) + phi(y, quandle.disc(x, zRy)), m) != 0) {
 
                         return false;
                     }
 
                     // ϕ(y ◁ R1(x, z), x) + ϕ(y, R2(x, z)) = ϕ(z, y ▷ R2(x, z)) + ϕ(R1(x, z), y)
-                    if (phi(quandle.left(y, xCz), x) != -1
+                    if (P[3] && phi(quandle.left(y, xCz), x) != -1
                             && phi(xCz, y) != -1
                             && phi(z, quandle.right(y, xDz)) != -1
                             && phi(y, xDz) != -1
-                            && mod(phi(quandle.left(y, xCz), x) + phi(y, xDz) - phi(z, quandle.right(y, xDz)) - phi(xCz, y), quandle.n()) != 0) {
+                            && mod(phi(quandle.left(y, xCz), x) + phi(y, xDz) - phi(z, quandle.right(y, xDz)) - phi(xCz, y), m) != 0) {
 
                         return false;
                     }
@@ -166,23 +178,24 @@ public final class Phi {
         return true;
     }
 
-    public static Set<Phi> generate(SingQuandle quandle) {
+    public static Set<Phi> generate(SingQuandle quandle, byte m) {
         Queue<Phi> queue = new LinkedList<>();
         Set<Phi> functions = new HashSet<>();
-        queue.offer(new Phi(quandle));
+        queue.offer(new Phi(quandle, m));
 
         while (!queue.isEmpty()) {
             Phi phi = queue.remove();
+            // System.out.println(phi);
 
             if (phi.isComplete()) {
                 if (phi.isValid()) {
                     functions.add(phi);
                 }
             } else {
-                for (byte x = 0; x < quandle.n(); ++x) {
+                for (byte x = 0; x < m; ++x) {
                     Phi copy = phi.copy();
                     if (replaceNextUnknown(copy, x) && fill(copy)) {
-                        if (copy.isValid()) queue.offer(copy);
+                        if (copy.isValid() && queue.size() < MAX_QUEUE_SIZE) queue.offer(copy);
                     }
                 }
             }
@@ -217,6 +230,34 @@ public final class Phi {
         return true;
     }
 
+    public boolean isTrivial() {
+        return isPhiTrivial() && isPrimeTrivial();
+    }
+
+    public boolean isPhiTrivial() {
+        for (byte i = 0; i < quandle.n(); ++i) {
+            for (byte j = 0; j < quandle.n(); ++j) {
+                if (phi(i, j) != 0) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean isPrimeTrivial() {
+        for (byte i = 0; i < quandle.n(); ++i) {
+            for (byte j = 0; j < quandle.n(); ++j) {
+                if (prime(i, j) != 0) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(quandle, Arrays.deepHashCode(phi), Arrays.deepHashCode(prime));
@@ -233,5 +274,18 @@ public final class Phi {
     @Override
     public String toString() {
         return Arrays.deepToString(phi) + " " + Arrays.deepToString(prime);
+    }
+
+    public String latex() {
+        return "\\begin{bmatrix}"
+                + Arrays.stream(prime).map(row -> {
+                    StringBuilder builder = new StringBuilder();
+                    for (byte b : row) {
+                        builder.append(b).append(" & ");
+                    }
+
+                    return builder.substring(0, builder.length() - 3);
+                }).collect(Collectors.joining("\\\\"))
+                + "\\end{bmatrix}";
     }
 }
