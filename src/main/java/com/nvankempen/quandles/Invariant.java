@@ -30,8 +30,10 @@ public final class Invariant {
 //                polynomial.add(phi.phi(x, y) + phi.prime(y, (byte) Utils.mod(2 * y - x, n)));
 //                polynomial.add(phi.prime(x, y) + phi.prime(quandle.circle(x, y), quandle.disc(x, y)));
 //                polynomial.add(phi.prime(x, y) + phi.phi(quandle.circle(x, y), quandle.disc(x, y)));
-                polynomial.add(phi.phi(quandle.left(y, x), x) + phi.prime(quandle.left(y, x), x));
+//                polynomial.add(phi.phi(quandle.left(y, x), x) + phi.prime(quandle.left(y, x), x));
             }
+
+            polynomial.add(2 * phi.prime(x, x));
         }
 
         return polynomial;

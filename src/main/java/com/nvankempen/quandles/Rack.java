@@ -1,50 +1,47 @@
 package com.nvankempen.quandles;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Rack {
     private final byte n;
-    private final byte[][] lefttriangle;
-    private final byte[][] righttriangle;
+    private final byte[][] triangle;
 
     public Rack(byte n) {
         this.n = n;
-        this.lefttriangle = new byte[n][n];
-        this.righttriangle = new byte[n][n];
+        this.triangle = new byte[n][n];
 
         for (byte i = 0; i < n; ++i) {
             for (byte j = 0; j < n; ++j) {
-                left(i, j, (byte) -1);
                 right(i, j, (byte) -1);
             }
         }
     }
 
-    public Rack(byte n, byte[][] lefttriangle, byte[][] righttriangle) {
+    public Rack(byte n, byte[][] triangle) {
         this.n = n;
-        this.lefttriangle = lefttriangle;
-        this.righttriangle = righttriangle;
+        this.triangle = triangle;
     }
 
     public byte n() {
         return n;
     }
 
-    public byte[][] left() {
-        return lefttriangle;
-    }
-
     public byte[][] right() {
-        return righttriangle;
+        return triangle;
     }
 
-    public byte left(byte i, byte j) {
-        if (i < 0 || j < 0) {
+    public byte left(byte z, byte y) {
+        if (z < 0 || y < 0) {
             return -1;
         }
 
-        return lefttriangle[i][j];
+        for (byte x = 0; x < n; ++x) {
+            if (right(x, y) == z) {
+                return x;
+            }
+        }
+
+        return -1;
     }
 
     public byte right(byte i, byte j) {
@@ -52,35 +49,29 @@ public class Rack {
             return -1;
         }
 
-        return righttriangle[i][j];
-    }
-
-    public void left(byte i, byte j, byte x) {
-        lefttriangle[i][j] = x;
+        return triangle[i][j];
     }
 
     public void right(byte i, byte j, byte x) {
-        righttriangle[i][j] = x;
+        triangle[i][j] = x;
     }
 
     public Rack copy() {
-        byte[][] lcopy = new byte[n][n];
-        byte[][] rcopy = new byte[n][n];
+        byte[][] copy = new byte[n][n];
 
         for (byte i = 0; i < n; ++i) {
             for (byte j = 0; j < n; ++j) {
-                lcopy[i][j] = left(i, j);
-                rcopy[i][j] = right(i, j);
+                copy[i][j] = right(i, j);
             }
         }
 
-        return new Rack(n, lcopy, rcopy);
+        return new Rack(n, copy);
     }
 
     public boolean isComplete() {
         for (byte i = 0; i < n; ++i) {
             for (byte j = 0; j < n; ++j) {
-                if (left(i, j) == -1 || right(i, j) == -1) {
+                if (right(i, j) == -1) {
                     return false;
                 }
             }
@@ -93,11 +84,18 @@ public class Rack {
         for (byte a = 0; a < n; ++a) {
             for (byte b = 0; b < n; ++b) {
 
-                if (right(right(a, b), b) != -1 && right(right(a, b), b) != a) {
-                    return false;
-                }
+                boolean found = false;
 
                 for (byte c = 0; c < n; ++c) {
+
+                    if (right(c, b) == a) {
+                        if (found) {
+                            return false;
+                        } else {
+                            found = true;
+                        }
+                    }
+
                     if (right(right(a, b), c) != -1
                             && right(right(a, c), right(b, c)) != -1
                             && right(right(a, b), c) != right(right(a, c), right(b, c))) {
@@ -114,18 +112,17 @@ public class Rack {
     @Override
     public boolean equals(Object other) {
         return other instanceof Rack
-                && Arrays.deepEquals(((Rack) other).lefttriangle, this.lefttriangle)
-                && Arrays.deepEquals(((Rack) other).righttriangle, this.righttriangle);
+                && Arrays.deepEquals(((Rack) other).triangle, this.triangle);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(lefttriangle), Arrays.deepHashCode(lefttriangle));
+        return Arrays.deepHashCode(triangle);
     }
 
     @Override
     public String toString() {
-        return Arrays.deepToString(righttriangle);
+        return Arrays.deepToString(triangle);
     }
 }

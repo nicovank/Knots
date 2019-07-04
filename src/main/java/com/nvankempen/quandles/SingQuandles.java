@@ -54,15 +54,6 @@ public class SingQuandles {
             }
         }
 
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                if (quandle.disc(i, j) == -1) {
-                    quandle.disc(i, j, value);
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 }

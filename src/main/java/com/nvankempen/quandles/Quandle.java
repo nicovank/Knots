@@ -21,15 +21,15 @@ public class Quandle extends Rack {
     }
 
     public Quandle(byte n) {
-        super(n, initial(n), initial(n));
+        super(n, initial(n));
     }
 
     public Quandle(Rack rack) {
-        super(rack.n(), rack.left(), rack.right());
+        super(rack.n(), rack.right());
     }
 
-    public Quandle(byte n, byte[][] lefttriangle, byte[][] righttriangle) {
-        super(n, lefttriangle,  righttriangle);
+    public Quandle(byte n, byte[][] righttriangle) {
+        super(n, righttriangle);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class Quandle extends Rack {
         }
 
         for (byte x = 0; x < super.n(); ++x) {
-            if ((right(x, x) != -1 && right(x, x) != x) || (left(x, x) != -1 && left(x, x) != x)) {
+            if (right(x, x) != -1 && right(x, x) != x) {
                 return false;
             }
         }
@@ -69,10 +69,7 @@ public class Quandle extends Rack {
 
         for (byte x = 0; x < n; ++x) {
             for (byte y = 0; y < n; ++y) {
-                byte z = (byte) mod(a * x + (1 - a) * y, n);
-
-                quandle.right(x, y, z);
-                quandle.left(z, y, x);
+                quandle.right(x, y, (byte) mod(a * x + (1 - a) * y, n));
             }
         }
 

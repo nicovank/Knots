@@ -101,7 +101,6 @@ public final class Phi {
                 byte xRy = quandle.right(x, y);
                 byte xPy = phi(x, y);
                 byte xQy = prime(x, y);
-                byte yPx = prime(y, x);
                 byte xLy = quandle.left(x, y);
 
                 // ϕ'(x, y) + ϕ(R1(x, y), R2(x, y)) = ϕ(x, y) + ϕ'(y, x ▷ y)
@@ -118,7 +117,6 @@ public final class Phi {
                     byte xPz = phi(x, z);
                     byte xRz = quandle.right(x, z);
                     byte yRz = quandle.right(y, z);
-                    byte zPy = phi(z, y);
                     byte zRy = quandle.right(z, y);
                     byte xCz = quandle.circle(x, z);
                     byte xDz = quandle.disc(x, z);
