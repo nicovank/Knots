@@ -1,3 +1,4 @@
+import com.nvankempen.Utils;
 import com.nvankempen.quandles.*;
 
 import java.util.Set;
@@ -21,8 +22,8 @@ public class Main {
 //        for (Quandle quandle : quandles) {
 //            System.out.println(quandle);
 //        }
-        byte n = 10;
-        byte m = 10;
+        byte n = 6;
+        byte m = 6;
 
 //        {
 //            byte t = -1;
@@ -71,6 +72,10 @@ public class Main {
                         for (byte y = 0; y < n; ++y) {
                             quandle.circle(x, y, (byte) mod(b * x + (1 - b) * y, n));
                             quandle.disc(x, y, (byte) mod(a * (1 - b) * x + (1 - a * (1 - b)) * y, n));
+
+                            if (quandle.left(x, y) != Utils.mod((n - a) * x + (1 - (n - a)) * y, n)) {
+                                System.out.println("FAIIIIIIIIIIIIL"); return;
+                            }
                         }
                     }
 

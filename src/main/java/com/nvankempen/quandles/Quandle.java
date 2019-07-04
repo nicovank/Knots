@@ -1,5 +1,7 @@
 package com.nvankempen.quandles;
 
+import com.nvankempen.Utils;
+
 import static com.nvankempen.Utils.mod;
 
 public class Quandle extends Rack {
@@ -70,7 +72,7 @@ public class Quandle extends Rack {
                 byte z = (byte) mod(a * x + (1 - a) * y, n);
 
                 quandle.right(x, y, z);
-                quandle.left(y, z, x);
+                quandle.left(z, y, x);
             }
         }
 

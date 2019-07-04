@@ -93,20 +93,15 @@ public class Rack {
         for (byte a = 0; a < n; ++a) {
             for (byte b = 0; b < n; ++b) {
 
-                if (right(left(a, b), a) != -1 && right(left(a, b), a) != b) {
-                    return false;
-                }
-
-                if (left(a, right(b, a)) != -1 && left(a, right(b, a)) != b) {
+                if (right(right(a, b), b) != -1 && right(right(a, b), b) != a) {
                     return false;
                 }
 
                 for (byte c = 0; c < n; ++c) {
-                    if (left(a, left(b, c)) != -1 && left(left(a, b), left(a, c)) != -1 && left(a, left(b, c)) != left(left(a, b), left(a, c))) {
-                        return false;
-                    }
+                    if (right(right(a, b), c) != -1
+                            && right(right(a, c), right(b, c)) != -1
+                            && right(right(a, b), c) != right(right(a, c), right(b, c))) {
 
-                    if (right(right(c, b), a) != -1 && right(right(c, a), right(b, a)) != -1 && right(right(c, b), a) != right(right(c, a), right(b, a))) {
                         return false;
                     }
                 }
