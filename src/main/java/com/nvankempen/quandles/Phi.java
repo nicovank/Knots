@@ -1,5 +1,8 @@
 package com.nvankempen.quandles;
 
+import com.nvankempen.Utils;
+import jdk.jshell.execution.Util;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,7 +14,7 @@ import static com.nvankempen.Utils.mod;
  */
 public final class Phi {
 
-    private static final int MAX_QUEUE_SIZE = Integer.MAX_VALUE;
+    private static final int MAX_QUEUE_SIZE = 10000;
 
     private final SingQuandle quandle;
     private final byte[][] phi;
@@ -87,6 +90,46 @@ public final class Phi {
             return new Phi(quandle, pcopy, qcopy, m);
     }
 
+    private byte operation(byte... operands) {
+//        if (operands.length == 0) return 0;
+//        if (operands.length == 1) return operands[0];
+//
+//        byte[] next = new byte[operands.length - 1];
+//        for (int i = 2; i < operands.length; ++i) {
+//            next[i - 1] = operands[i];
+//        }
+//
+//        next[0] = (new byte[][] {
+//                {0, 1, 2, 3, 4, 5},
+//                {1, 2, 0, 5, 3, 4},
+//                {2, 0, 1, 4, 5, 3},
+//                {3, 4, 5, 0, 1, 2},
+//                {4, 5, 3, 2, 0, 1},
+//                {4, 3, 4, 1, 2, 0}
+//        })[operands[0]][operands[1]];
+//
+//        return operation(next);
+
+        int sum = 0;
+        for (byte b : operands) sum += b;
+        return (byte) Utils.mod(sum, m);
+    }
+
+    private byte inverse(byte element) {
+//        switch (element) {
+//            case 0: return 0;
+//            case 1: return 2;
+//            case 2: return 1;
+//            case 3: return 3;
+//            case 4: return 4;
+//            case 5: return 5;
+//        }
+//
+//        throw new RuntimeException();
+
+        return (byte) Utils.mod(- element, m);
+    }
+
     public boolean isValid() {
         for (byte x = 0; x < quandle.n(); ++x) {
 
@@ -108,7 +151,7 @@ public final class Phi {
                         && phi(xCy, xDy) != -1
                         && xPy != -1
                         && prime(y, xRy) != -1
-                        && mod(xQy + phi(xCy, xDy) - xPy - prime(y, xRy), m) != 0) {
+                        && operation(xQy, phi(xCy, xDy), inverse(xPy), inverse(prime(y, xRy))) != 0) {
 
                     return false;
                 }
@@ -126,7 +169,7 @@ public final class Phi {
                             && phi(xRy, z) != -1
                             && xPz != -1
                             && phi(xRz, yRz) != -1
-                            && mod(xPy + phi(xRy, z) - xPz - phi(xRz, yRz), m) != 0) {
+                            && operation(xPy, phi(xRy, z), inverse(xPz), inverse(phi(xRz, yRz))) != 0) {
 
                         return false;
                     }
@@ -138,7 +181,7 @@ public final class Phi {
                             && phi(z, y) != -1
                             && prime(x, zRy) != -1
                             && phi(quandle.left(quandle.disc(x, zRy), y), y) != -1
-                            && - phi(xLy, y) + prime(xLy, z) + phi(quandle.circle(xLy, z), y) != phi(z, y) + prime(x, zRy) - phi(quandle.left(quandle.disc(x, zRy), y), y)) {
+                            && operation(inverse(phi(xLy, y)), prime(xLy, z), phi(quandle.circle(xLy, z), y), inverse(phi(z, y)), inverse(prime(x, zRy)), phi(quandle.left(quandle.disc(x, zRy), y), y)) != 0) {
 
                         return false;
                     }
@@ -148,7 +191,7 @@ public final class Phi {
                             && phi(quandle.left(y,xCz), xCz) != -1
                             && phi(quandle.left(quandle.right(y, xDz), z), z) != -1
                             && phi(y, xDz) != -1
-                            && phi(quandle.left(y, xCz), x) - phi(quandle.left(y,xCz), xCz) != - phi(quandle.left(quandle.right(y, xDz), z), z) + phi(y, xDz)) {
+                            && operation(phi(quandle.left(y, xCz), x), inverse(phi(quandle.left(y,xCz), xCz)), phi(quandle.left(quandle.right(y, xDz), z), z), phi(y, xDz)) != 0) {
 
                         return false;
                     }
