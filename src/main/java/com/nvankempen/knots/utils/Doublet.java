@@ -3,9 +3,6 @@ package com.nvankempen.knots.utils;
 import java.util.Objects;
 
 public class Doublet<A, B> {
-    private final A a;
-    private final B b;
-
     public static <A, B> Doublet<A, B> create(A a, B b) {
         return new Doublet<>(a, b);
     }
@@ -37,4 +34,7 @@ public class Doublet<A, B> {
     public String toString() {
         return "[" + a + ", " + b + "]";
     }
+
+    private final A a;
+    private final B b;
 }

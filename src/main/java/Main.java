@@ -1,12 +1,20 @@
 import com.nvankempen.knots.*;
+import com.nvankempen.knots.utils.Box;
 
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Main {
     public static void main(String[] args) {
-        Quandle.generate((byte) 3, new Group<Byte>() {
+        final Box<Integer> count = Box.create(0);
+        Quandle.generate(Z(6), q -> {
+            count.setElement(count.getElement() + 1);
+        });
+        System.out.println(count);
+    }
+
+    private static Group<Byte> Z(int n) {
+        return new Group<>() {
             @Override
             public Byte getUnknownValue() {
                 return -1;
@@ -14,8 +22,12 @@ public class Main {
 
             @Override
             public SortedSet<Byte> getAllElements() {
-                return new TreeSet<>(Set.of((byte) 0, (byte) 1, (byte) 2));
+                final SortedSet<Byte> elements = new TreeSet<>();
+                for (byte i = 0; i < n; ++i) {
+                    elements.add(i);
+                }
+                return elements;
             }
-        }, System.out::println);
+        };
     }
 }

@@ -5,8 +5,7 @@ import com.nvankempen.knots.utils.Doublet;
 import java.util.*;
 
 public class Rack<Element> {
-    public Rack(byte n, Group<Element> group) {
-        this.n = n;
+    public Rack(Group<Element> group) {
         this.group = group;
         this.triangle = new HashMap<>();
 
@@ -17,8 +16,7 @@ public class Rack<Element> {
         }
     }
 
-    public Rack(byte n, Group<Element> group, Map<Doublet<Element, Element>, Element> triangle) {
-        this.n = n;
+    public Rack(Group<Element> group, Map<Doublet<Element, Element>, Element> triangle) {
         this.group = group;
         this.triangle = new HashMap<>(triangle);
     }
@@ -27,8 +25,8 @@ public class Rack<Element> {
         return group;
     }
 
-    public byte n() {
-        return n;
+    public int n() {
+        return group.getAllElements().size();
     }
 
     public Map<Doublet<Element, Element>, Element> right() {
@@ -56,7 +54,7 @@ public class Rack<Element> {
     public Rack<Element> copy() {
         final Map<Doublet<Element, Element>, Element> copy = new HashMap<>();
         triangle.forEach(copy::put);
-        return new Rack<>(n, group, copy);
+        return new Rack<>(group, copy);
     }
 
     public boolean isComplete() {
@@ -74,6 +72,7 @@ public class Rack<Element> {
     public boolean isValid() {
         for (Element a : group.getAllElements()) {
             for (Element b : group.getAllElements()) {
+                boolean unknowns = false;
                 boolean found = false;
 
                 for (Element c : group.getAllElements()) {
@@ -82,7 +81,9 @@ public class Rack<Element> {
                     final Element aRb = right(a, b);
                     final Element bRc = right(b, c);
 
-                    if (cRb == a) {
+                    if (cRb == getGroup().getUnknownValue()) {
+                        unknowns = true;
+                    } else if (!unknowns && cRb == a) {
                         if (found) {
                             return false;
                         } else {
@@ -95,7 +96,7 @@ public class Rack<Element> {
                     }
                 }
 
-                if (!found) {
+                if (!unknowns && !found) {
                     return false;
                 }
             }
@@ -116,7 +117,7 @@ public class Rack<Element> {
 
     @Override
     public String toString() {
-        if (n == 0) {
+        if (n() == 0) {
             return "[]";
         }
 
@@ -143,7 +144,6 @@ public class Rack<Element> {
         return new String(builder);
     }
 
-    private final byte n;
     private final Group<Element> group;
     private final Map<Doublet<Element, Element>, Element> triangle;
 }

@@ -9,13 +9,13 @@ import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
 public class Quandle<Element> extends Rack<Element> {
-    public Quandle(byte n, Group<Element> group) {
-        super(n, group);
+    public Quandle(Group<Element> group) {
+        super(group);
         group.getAllElements().forEach(e -> right(e, e, e));
     }
 
     public Quandle(Rack<Element> rack) {
-        super(rack.n(), rack.getGroup(), rack.right());
+        super(rack.getGroup(), rack.right());
     }
 
     @Override
@@ -38,8 +38,8 @@ public class Quandle<Element> extends Rack<Element> {
         return true;
     }
 
-    public static <Element> void generate(byte n, Group<Element> group, Consumer<Quandle<Element>> onResult) {
-        new RecursiveQuandleSearcher<>(onResult, new Quandle<>(n, group)).invoke();
+    public static <Element> void generate(Group<Element> group, Consumer<Quandle<Element>> onResult) {
+        new RecursiveQuandleSearcher<>(onResult, new Quandle<>(group)).invoke();
     }
 
     public boolean isInvolutory() {
@@ -75,7 +75,9 @@ public class Quandle<Element> extends Rack<Element> {
                 for (Element z : quandle.getGroup().getAllElements()) {
                     final Quandle<Element> copy = quandle.copy();
                     copy.right(unknown.getA(), unknown.getB(), z);
-                    tasks.add(new RecursiveQuandleSearcher<>(onResult, copy));
+                    if (copy.isValid()) {
+                        tasks.add(new RecursiveQuandleSearcher<>(onResult, copy));
+                    }
                 }
 
                 if (!tasks.isEmpty()) {
