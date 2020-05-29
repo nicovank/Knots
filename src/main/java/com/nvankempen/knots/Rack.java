@@ -83,11 +83,12 @@ public class Rack {
                 boolean found = false;
 
                 for (byte c = 0; c < n; ++c) {
+                    final byte cRb = right(c, b);
                     final byte aRc = right(a, c);
                     final byte aRb = right(a, b);
                     final byte bRc = right(b, c);
 
-                    if (aRc == b) {
+                    if (cRb == a) {
                         if (found) {
                             return false;
                         } else {
