@@ -6,7 +6,13 @@ import java.util.*;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
+/**
+ * This class provides a utility capable of generating all quandles of a given order.
+ */
 public final class Quandles {
+
+    private static final int DIRECT_SOLVE_THRESHOLD = 5;
+
     private static final class QuandleSeeker extends RecursiveAction {
         QuandleSeeker(Consumer<Quandle> onResult, Quandle quandle) {
             this.onResult = onResult;
@@ -29,10 +35,12 @@ public final class Quandles {
                     tasks.add(new QuandleSeeker(onResult, copy));
                 }
 
-                if (tasks.size() > 0) {
-                    final QuandleSeeker first = tasks.remove();
-                    invokeAll(tasks);
-                    first.compute();
+                if (!tasks.isEmpty()) {
+                    if (countUnknowns(quandle) < DIRECT_SOLVE_THRESHOLD) {
+                        tasks.forEach(QuandleSeeker::compute);
+                    } else {
+                        invokeAll(tasks);
+                    }
                 }
             }
         }
@@ -55,5 +63,18 @@ public final class Quandles {
         }
 
         return null;
+    }
+
+    private static int countUnknowns(Quandle quandle) {
+        int count = 0;
+        for (byte i = 0; i < quandle.n(); ++i) {
+            for (byte j = 0; j < quandle.n(); ++j) {
+                if (quandle.right(i, j) == -1) {
+                    ++count;
+                }
+            }
+        }
+
+        return count;
     }
 }
