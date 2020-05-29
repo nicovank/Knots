@@ -1,4 +1,4 @@
-package com.nvankempen.quandles;
+package com.nvankempen.knots;
 
 import java.util.Arrays;
 import java.util.Objects;

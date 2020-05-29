@@ -1,4 +1,4 @@
-import com.nvankempen.quandles.*;
+import com.nvankempen.knots.*;
 
 public class Main {
 

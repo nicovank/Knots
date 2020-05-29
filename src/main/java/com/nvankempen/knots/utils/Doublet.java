@@ -1,4 +1,4 @@
-package com.nvankempen.quandles.utils;
+package com.nvankempen.knots.utils;
 
 import java.util.Objects;
 

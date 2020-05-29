@@ -1,4 +1,4 @@
-package com.nvankempen.quandles;
+package com.nvankempen.knots;
 
 public class Quandle extends Rack {
     public Quandle(byte n) {

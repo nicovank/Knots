@@ -1,6 +1,6 @@
-package com.nvankempen.quandles;
+package com.nvankempen.knots;
 
-import com.nvankempen.quandles.utils.Doublet;
+import com.nvankempen.knots.utils.Doublet;
 
 import java.util.*;
 import java.util.concurrent.RecursiveAction;
