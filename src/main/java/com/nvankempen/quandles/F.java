@@ -1,7 +1,6 @@
 package com.nvankempen.quandles;
 
 import com.nvankempen.Utils;
-import jdk.jshell.execution.Util;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,7 +13,7 @@ import static com.nvankempen.Utils.mod;
  */
 public final class F {
 
-    private static final int MAX_QUEUE_SIZE = 10000;
+    private static final int MAX_QUEUE_SIZE = Integer.MAX_VALUE;
 
     private final SingQuandle quandle;
     private final byte[] f;
@@ -56,6 +55,10 @@ public final class F {
         }
 
         return f[x];
+    }
+
+    public byte phi(byte x, byte y) {
+        return (byte) (f(x) - f(quandle.right(x, y)));
     }
 
     public byte prime(byte x, byte y) {
@@ -159,6 +162,78 @@ public final class F {
         return true;
     }
 
+//    public boolean isValid() {
+//        for (byte x = 0; x < quandle.n(); ++x) {
+//
+//            // ϕ(x, x) = 0
+//            if (phi(x, x) != -1 && phi(x, x) != 0) {
+//                return false;
+//            }
+//
+//            for (byte y = 0; y < quandle.n(); ++y) {
+//                byte xCy = quandle.circle(x, y);
+//                byte xDy = quandle.disc(x, y);
+//                byte xRy = quandle.right(x, y);
+//                byte xPy = phi(x, y);
+//                byte xQy = prime(x, y);
+//                byte xLy = quandle.left(x, y);
+//
+//                // ϕ'(x, y) + ϕ(R1(x, y), R2(x, y)) = ϕ(x, y) + ϕ'(y, x ▷ y)
+//                if (xQy != -1
+//                        && phi(xCy, xDy) != -1
+//                        && xPy != -1
+//                        && prime(y, xRy) != -1
+//                        && mod(xQy + phi(xCy, xDy) + inverse(xPy) + inverse(prime(y, xRy)), quandle.n()) != 0) {
+//
+//                    return false;
+//                }
+//
+//                for (byte z = 0; z < quandle.n(); ++z) {
+//                    byte xPz = phi(x, z);
+//                    byte xRz = quandle.right(x, z);
+//                    byte yRz = quandle.right(y, z);
+//                    byte zRy = quandle.right(z, y);
+//                    byte xCz = quandle.circle(x, z);
+//                    byte xDz = quandle.disc(x, z);
+//
+//                    // ϕ(x, y) + ϕ(x ▷ y, z) = ϕ(x, z) + ϕ(x ▷ z, y ▷ z)
+//                    if (xPy != -1
+//                            && phi(xRy, z) != -1
+//                            && xPz != -1
+//                            && phi(xRz, yRz) != -1
+//                            && mod(xPy + phi(xRy, z) + inverse(xPz) + inverse(phi(xRz, yRz)), quandle.n()) != 0) {
+//
+//                        return false;
+//                    }
+//
+//                    // - ϕ(x ◁ y, y) + ϕ'(x ◁ y, z) + ϕ(R1(x ◁ y, z), y) = ϕ(z, y) + ϕ'(x, z ▷ y) - ϕ(R2(x, z ▷ y) ◁ y, y)
+//                    if (phi(xLy, y) != -1
+//                            && prime(xLy, z) != -1
+//                            && phi(quandle.circle(xLy, z), y) != -1
+//                            && phi(z, y) != -1
+//                            && prime(x, zRy) != -1
+//                            && phi(quandle.left(quandle.disc(x, zRy), y), y) != -1
+//                            && mod(inverse(phi(xLy, y)) + prime(xLy, z) + phi(quandle.circle(xLy, z), y) + inverse(phi(z, y)) + inverse(prime(x, zRy)) + phi(quandle.left(quandle.disc(x, zRy), y), y), quandle.n()) != 0) {
+//
+//                        return false;
+//                    }
+//
+//                    // ϕ(y ◁ R1(x, z), x) - ϕ(y ◁ R1(x, z), R1(x, z)) = - ϕ((y ▷ R2(x, z)) ◁ z, z) + ϕ(y, R2(x, z))
+//                    if (phi(quandle.left(y, xCz), x) != -1
+//                            && phi(quandle.left(y,xCz), xCz) != -1
+//                            && phi(quandle.left(quandle.right(y, xDz), z), z) != -1
+//                            && phi(y, xDz) != -1
+//                            && mod(phi(quandle.left(y, xCz), x) + inverse(phi(quandle.left(y,xCz), xCz)) + phi(quandle.left(quandle.right(y, xDz), z), z) + phi(y, xDz), quandle.n()) != 0) {
+//
+//                        return false;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return true;
+//    }
+
     public boolean isComplete() {
         for (byte i = 0; i < quandle.n(); ++i) {
 
@@ -179,7 +254,16 @@ public final class F {
     public static Set<F> generate(SingQuandle quandle, byte m) {
         Queue<F> queue = new LinkedList<>();
         Set<F> functions = new HashSet<>();
-        queue.offer(new F(quandle, m));
+        F initial = new F(quandle, m);
+
+        // TODO REMOVE THIS EVENTUALLY
+        for (byte i = 0; i < quandle.n(); i++) {
+            for (byte j = 0; j < quandle.n(); j++) {
+                initial.prime(i, j, (byte) 1);
+            }
+        }
+
+        queue.offer(initial);
 
         while (!queue.isEmpty()) {
             F system = queue.remove();
@@ -266,8 +350,28 @@ public final class F {
 
     @Override
     public String toString() {
-        return (Arrays.toString(f) + " " + Arrays.deepToString(prime))
-                .replaceAll("\\[", "{").replaceAll("]", "}");
+//        return Arrays.toString(f) + " " + Arrays.deepToString(prime);
+        StringBuilder builder = new StringBuilder();
+
+        for (byte i = 0; i < quandle.n(); i++) {
+            if (f(i) == 0) builder.append(i).append(", ");
+        }
+
+        builder.append("from X to 0 in Z_").append(m).append("\n");
+
+        for (byte i = 0; i < quandle.n(); i++) {
+            if (f(i) == 1) builder.append(i).append(", ");
+        }
+
+        builder.append("from X to 1 in Z_").append(m).append("\n");
+
+        for (byte i = 0; i < quandle.n(); i++) {
+            if (f(i) == 2) builder.append(i).append(", ");
+        }
+
+        builder.append("from X to 1 in Z_").append(m).append("\n");
+
+        return new String(builder);
     }
 
     public String latex() {

@@ -1,5 +1,6 @@
 import com.nvankempen.Utils;
 import com.nvankempen.quandles.*;
+import com.nvankempen.quandles.utils.Pair;
 
 import java.util.Set;
 
@@ -8,9 +9,6 @@ import static com.nvankempen.Utils.mod;
 public class Main {
 
     public static void main(String[] args) {
-
-        byte n = 5;
-        byte m = 5;
 
 //        {
 ////            Quandle quandle = new Quandle(n, new byte[][] {
@@ -53,43 +51,74 @@ public class Main {
 //            System.out.println(Invariant.compute(n, m, quandle, new Phi(quandle, phi, prime, m)).toString("u"));
 //        }
 
-        for (byte a = 2; a < n; ++a) {
-            for (byte b = 2; b < n; ++b) {
-                SingQuandle quandle = new SingQuandle(Quandle.alexander(n, a));
+//        byte a = -1;
+//
+//        for (byte b = 2; b < n; ++b) {
+//            SingQuandle quandle = new SingQuandle(Quandle.alexander(n, a));
+//
+//            if (quandle.isValid()) {
+//                for (byte x = 0; x < n; ++x) {
+//                    for (byte y = 0; y < n; ++y) {
+//                        quandle.circle(x, y, (byte) mod(b * x + (1 - b) * y, n));
+//                    }
+//                }
+//
+//                System.out.println("[a, b] = [" + a + ", " + b + "]");
+//
+//                if (!quandle.isValid()) {
+//                    System.out.println("Invalid!!!!");
+//                    continue;
+//                }
+//
+//                long count = 0;
+//                Set<F> set = F.generate(quandle, m);
+//                for (F system : set) {
+//                     System.out.println(system);
+////
+////                    boolean flag = true;
+////                    for (byte i = 0; i < n; ++i) {
+////                        if (system.f(i) != 0) {
+////                            flag = false;
+////                            break;
+////                        }
+////                    }
+////
+////                    if (flag) {
+////                        ++count;
+////                        continue;
+////                    }
+////
+////                    flag = true;
+////
+////                    for (byte i = 0; i < n; ++i) {
+////                        if (system.prime(i, i) != 0) {
+////                            flag = false; break;
+////                        }
+////                    }
+////
+////                    if (flag) ++count;
+//                }
+//
+//                System.out.println("Set: " + set.size() + ", Count: " + count);
+//            }
+//        }
 
-                if (quandle.isValid()) {
-                    for (byte x = 0; x < n; ++x) {
-                        for (byte y = 0; y < n; ++y) {
-                            quandle.circle(x, y, (byte) mod(b * x + (1 - b) * y, n));
-                        }
-                    }
+        byte n = 10;
+        byte m = 3;
 
-                    System.out.println("[a, b] = [" + a + ", " + b + "]");
+        SingQuandle quandle = new SingQuandle(n);
+        int b = 1;
 
-                    if (!quandle.isValid()) {
-                        System.out.println("Invalid!!!!");
-                        continue;
-                    }
-
-//                            if (t == -1) {
-//                                System.out.println("[t, B] = [" + t + ", " + B + "]");
-//                                for (Phi phi : Phi.generate(quandle, m)) {
-//                                    if (!phi.isTrivial()) {
-//                                        System.out.println(phi);
-//                                    }
-//                                }
-//                            }
-
-                    for (Phi phi : Phi.generate(quandle, m)) {
-                        if (!phi.isTrivial()) {
-                            if (phi.toString().equals("{{0, 0, 0, 3, 3, 3}, {3, 0, 3, 0, 3, 0}, {3, 0, 0, 0, 3, 3}, {3, 0, 3, 0, 3, 0}, {3, 3, 0, 0, 0, 3}, {3, 0, 3, 0, 3, 0}} {{3, 5, 4, 0, 4, 5}, {2, 0, 2, 0, 0, 0}, {1, 5, 3, 5, 1, 0}, {0, 0, 2, 0, 2, 0}, {4, 0, 4, 5, 3, 5}, {5, 0, 0, 0, 5, 0}}")) {
-                                System.out.println("here");
-                            }
-                            System.out.println(phi);
-                        }
-                    }
-                }
+        for (byte x = 0; x < n; x++) {
+            for (byte y = 0; y < n; y++) {
+                quandle.right(x, y, (byte) mod(3 * x - 2 * y, n));
+                quandle.circle(x, y, (byte) mod(b * x + (6 - b) * y, n));
             }
         }
+
+        for (F f : F.generate(quandle, m)) {
+            System.out.println(f);
+        }
+        System.out.println(F.generate(quandle, m).size());
     }
 }

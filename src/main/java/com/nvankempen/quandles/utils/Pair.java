@@ -28,4 +28,9 @@ public class Pair<A, B> {
     public boolean equals(Object other) {
         return other instanceof Pair && ((Pair) other).a.equals(this.a) && ((Pair) other).b.equals(this.b);
     }
+
+    @Override
+    public String toString() {
+        return "[" + a + ", " + b + "]";
+    }
 }
