@@ -1,48 +1,38 @@
 package com.nvankempen.knots;
 
-public class SingQuandle extends Quandle {
-    public SingQuandle(byte n) {
-        super(n);
-        this.R1 = new byte[n][n];
+import com.nvankempen.knots.utils.Doublet;
 
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                R1(i, j, (byte) -1);
-            }
-        }
+import java.util.HashMap;
+import java.util.Map;
+
+public class SingQuandle<Element> extends Quandle<Element> {
+    public SingQuandle(byte n, Group<Element> group) {
+        super(n, group);
+        this.R1 = new HashMap<>();
     }
 
-    public SingQuandle(Quandle quandle, byte[][] R1) {
+    public SingQuandle(Quandle<Element> quandle, Map<Doublet<Element, Element>, Element> R1) {
         super(quandle);
         this.R1 = R1;
     }
 
-    public byte R1(byte x, byte y) {
-        if (x < 0 || y < 0) {
-            return -1;
-        }
-
-        return R1[x][y];
+    public Element R1(Element x, Element y) {
+        return R1.getOrDefault(Doublet.create(x, y), getGroup().getUnknownValue());
     }
 
-    public byte R2(byte x, byte y) {
+    public Element R2(Element x, Element y) {
         return R1(y, right(x, y));
     }
 
-    public void R1(byte x, byte y, byte z) {
-        R1[x][y] = z;
+    public void R1(Element x, Element y, Element z) {
+        R1.put(Doublet.create(x, y), z);
     }
 
     @Override
-    public SingQuandle copy() {
-        final byte[][] copy = new byte[n()][n()];
-        for (byte i = 0; i < n(); i++) {
-            for (byte j = 0; j < n(); j++) {
-                copy[i][j] = R1(i, j);
-            }
-        }
-
-        return new SingQuandle(super.copy(), copy);
+    public SingQuandle<Element> copy() {
+        final Map<Doublet<Element, Element>, Element> copy = new HashMap<>();
+        R1.forEach(copy::put);
+        return new SingQuandle<>(super.copy(), copy);
     }
 
     @Override
@@ -51,31 +41,33 @@ public class SingQuandle extends Quandle {
             return false;
         }
 
-        for (byte x = 0; x < n(); ++x) {
-            for (byte y = 0; y < n(); y++) {
-                final byte xRy = right(x, y);
-                final byte xLy = left(x, y);
-                final byte xCy = R1(x, y);
-                final byte xDy = R2(x, y);
+        final Element unknown = getGroup().getUnknownValue();
 
-                if (right(xCy, xDy) != -1 && R2(y, xRy) != -1 && right(xCy, xDy) != R2(y, xRy)) {
+        for (Element x : getGroup().getAllElements()) {
+            for (Element y : getGroup().getAllElements()) {
+                final Element xRy = right(x, y);
+                final Element xLy = left(x, y);
+                final Element xCy = R1(x, y);
+                final Element xDy = R2(x, y);
+
+                if (right(xCy, xDy) != unknown && R2(y, xRy) != unknown && right(xCy, xDy) != R2(y, xRy)) {
                     return false;
                 }
 
-                for (byte z = 0; z < n(); ++z) {
-                    final byte zRy = right(z, y);
-                    final byte xCz = R1(x, z);
-                    final byte xDz = R1(x, z);
+                for (Element z : getGroup().getAllElements()) {
+                    final Element zRy = right(z, y);
+                    final Element xCz = R1(x, z);
+                    final Element xDz = R1(x, z);
 
-                    if (right(R1(xLy, z), y) != -1 && R1(x, zRy) != -1 && right(R1(xLy, z), y) != R1(x, zRy)) {
+                    if (right(R1(xLy, z), y) != unknown && R1(x, zRy) != unknown && right(R1(xLy, z), y) != R1(x, zRy)) {
                         return false;
                     }
 
-                    if (R2(xLy, z) != -1 && left(R2(x, zRy), y) != -1 && R2(xLy, z) != left(R2(x, zRy), y)) {
+                    if (R2(xLy, z) != unknown && left(R2(x, zRy), y) != unknown && R2(xLy, z) != left(R2(x, zRy), y)) {
                         return false;
                     }
 
-                    if (right(left(y, xCz), x) != -1 && left(right(y, xDz), z) != -1 && right(left(y, xCz), x) != left(right(y, xDz), z)) {
+                    if (right(left(y, xCz), x) != unknown && left(right(y, xDz), z) != unknown && right(left(y, xCz), x) != left(right(y, xDz), z)) {
                         return false;
                     }
                 }
@@ -85,5 +77,5 @@ public class SingQuandle extends Quandle {
         return true;
     }
 
-    private final byte[][] R1;
+    private final Map<Doublet<Element, Element>, Element> R1;
 }

@@ -1,74 +1,68 @@
 package com.nvankempen.knots;
 
-import java.util.Arrays;
+import com.nvankempen.knots.utils.Doublet;
 
-public class Rack {
-    public Rack(byte n) {
+import java.util.*;
+
+public class Rack<Element> {
+    public Rack(byte n, Group<Element> group) {
         this.n = n;
-        this.triangle = new byte[n][n];
+        this.group = group;
+        this.triangle = new HashMap<>();
 
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                right(i, j, (byte) -1);
+        for (Element i : group.getAllElements()) {
+            for (Element j : group.getAllElements()) {
+                right(i, j, group.getUnknownValue());
             }
         }
     }
 
-    public Rack(byte n, byte[][] triangle) {
+    public Rack(byte n, Group<Element> group, Map<Doublet<Element, Element>, Element> triangle) {
         this.n = n;
-        this.triangle = triangle;
+        this.group = group;
+        this.triangle = new HashMap<>(triangle);
+    }
+
+    public Group<Element> getGroup() {
+        return group;
     }
 
     public byte n() {
         return n;
     }
 
-    public byte[][] right() {
+    public Map<Doublet<Element, Element>, Element> right() {
         return triangle;
     }
 
-    public byte left(byte z, byte y) {
-        if (z < 0 || y < 0) {
-            return -1;
-        }
-
-        for (byte x = 0; x < n; ++x) {
+    public Element left(Element z, Element y) {
+        for (Element x : group.getAllElements()) {
             if (right(x, y) == z) {
                 return x;
             }
         }
 
-        return -1;
+        return group.getUnknownValue();
     }
 
-    public byte right(byte i, byte j) {
-        if (i < 0 || j < 0) {
-            return -1;
-        }
-
-        return triangle[i][j];
+    public Element right(Element i, Element j) {
+        return triangle.getOrDefault(Doublet.create(i, j), group.getUnknownValue());
     }
 
-    public void right(byte i, byte j, byte x) {
-        triangle[i][j] = x;
+    public void right(Element i, Element j, Element x) {
+        triangle.put(Doublet.create(i, j), x);
     }
 
-    public Rack copy() {
-        byte[][] copy = new byte[n][n];
-
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                copy[i][j] = right(i, j);
-            }
-        }
-
-        return new Rack(n, copy);
+    public Rack<Element> copy() {
+        final Map<Doublet<Element, Element>, Element> copy = new HashMap<>();
+        triangle.forEach(copy::put);
+        return new Rack<>(n, group, copy);
     }
 
     public boolean isComplete() {
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                if (right(i, j) == -1) {
+        for (Element i : group.getAllElements()) {
+            for (Element j : group.getAllElements()) {
+                if (right(i, j) == group.getUnknownValue()) {
                     return false;
                 }
             }
@@ -78,15 +72,15 @@ public class Rack {
     }
 
     public boolean isValid() {
-        for (byte a = 0; a < n; ++a) {
-            for (byte b = 0; b < n; ++b) {
+        for (Element a : group.getAllElements()) {
+            for (Element b : group.getAllElements()) {
                 boolean found = false;
 
-                for (byte c = 0; c < n; ++c) {
-                    final byte cRb = right(c, b);
-                    final byte aRc = right(a, c);
-                    final byte aRb = right(a, b);
-                    final byte bRc = right(b, c);
+                for (Element c : group.getAllElements()) {
+                    final Element cRb = right(c, b);
+                    final Element aRc = right(a, c);
+                    final Element aRb = right(a, b);
+                    final Element bRc = right(b, c);
 
                     if (cRb == a) {
                         if (found) {
@@ -96,7 +90,7 @@ public class Rack {
                         }
                     }
 
-                    if (right(aRb, c) != -1 && right(aRc, bRc) != -1 && right(aRb, c) != right(aRc, bRc)) {
+                    if (right(aRb, c) != group.getUnknownValue() && right(aRc, bRc) != group.getUnknownValue() && right(aRb, c) != right(aRc, bRc)) {
                         return false;
                     }
                 }
@@ -112,19 +106,44 @@ public class Rack {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Rack && Arrays.deepEquals(((Rack) other).triangle, this.triangle);
+        return other instanceof Rack && ((Rack) other).triangle.equals(this.triangle);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(triangle);
+        return triangle.hashCode();
     }
 
     @Override
     public String toString() {
-        return Arrays.deepToString(triangle);
+        if (n == 0) {
+            return "[]";
+        }
+
+        final List<Element> elements = new ArrayList<>(group.getAllElements());
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("[");
+        builder.append(right(elements.get(0), elements.get(0)));
+        for (int i = 1; i < n(); ++i) {
+            builder.append(", ").append(right(elements.get(0), elements.get(i)));
+        }
+        builder.append("]");
+
+        for (int i = 1; i < n(); ++i) {
+            builder.append(", [");
+            builder.append(right(elements.get(i), elements.get(0)));
+            for (int j = 1; j < n(); ++j) {
+                builder.append(", ").append(right(elements.get(i), elements.get(j)));
+            }
+            builder.append("]");
+        }
+        builder.append("]");
+
+        return new String(builder);
     }
 
     private final byte n;
-    private final byte[][] triangle;
+    private final Group<Element> group;
+    private final Map<Doublet<Element, Element>, Element> triangle;
 }

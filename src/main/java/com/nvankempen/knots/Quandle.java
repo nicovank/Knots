@@ -8,22 +8,19 @@ import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
-public class Quandle extends Rack {
-    public Quandle(byte n) {
-        super(n, initial(n));
+public class Quandle<Element> extends Rack<Element> {
+    public Quandle(byte n, Group<Element> group) {
+        super(n, group);
+        group.getAllElements().forEach(e -> right(e, e, e));
     }
 
-    public Quandle(Rack rack) {
-        super(rack.n(), rack.right());
-    }
-
-    public Quandle(byte n, byte[][] triangle) {
-        super(n, triangle);
+    public Quandle(Rack<Element> rack) {
+        super(rack.n(), rack.getGroup(), rack.right());
     }
 
     @Override
-    public Quandle copy() {
-        return new Quandle(super.copy());
+    public Quandle<Element> copy() {
+        return new Quandle<>(super.copy());
     }
 
     @Override
@@ -32,8 +29,8 @@ public class Quandle extends Rack {
             return false;
         }
 
-        for (byte x = 0; x < n(); ++x) {
-            if (right(x, x) != -1 && right(x, x) != x) {
+        for (Element x : getGroup().getAllElements()) {
+            if (right(x, x) != getGroup().getUnknownValue() && right(x, x) != x) {
                 return false;
             }
         }
@@ -41,13 +38,13 @@ public class Quandle extends Rack {
         return true;
     }
 
-    public static void generate(byte n, Consumer<Quandle> onResult) {
-        new RecursiveQuandleSearcher(onResult, new Quandle(n)).invoke();
+    public static <Element> void generate(byte n, Group<Element> group, Consumer<Quandle<Element>> onResult) {
+        new RecursiveQuandleSearcher<>(onResult, new Quandle<>(n, group)).invoke();
     }
 
     public boolean isInvolutory() {
-        for (byte a = 0; a < n(); ++a) {
-            for (byte b = 0; b < n(); ++b) {
+        for (Element a : getGroup().getAllElements()) {
+            for (Element b : getGroup().getAllElements()) {
                 if (left(a, left(a, b)) != b || right(right(b, a), a) != b) {
                     return false;
                 }
@@ -57,24 +54,10 @@ public class Quandle extends Rack {
         return true;
     }
 
-    private static byte[][] initial(byte n) {
-        final byte[][] initial = new byte[n][n];
-
-        for (byte i = 0; i < n; ++i) {
-            for (byte j = 0; j < n; ++j) {
-                initial[i][j] = (byte) -1;
-            }
-
-            initial[i][i] = i;
-        }
-
-        return initial;
-    }
-
-    private static final class RecursiveQuandleSearcher extends RecursiveAction {
+    private static final class RecursiveQuandleSearcher<Element> extends RecursiveAction {
         private static final int DIRECT_SOLVE_THRESHOLD = 5;
 
-        RecursiveQuandleSearcher(Consumer<Quandle> onResult, Quandle quandle) {
+        RecursiveQuandleSearcher(Consumer<Quandle<Element>> onResult, Quandle<Element> quandle) {
             this.onResult = onResult;
             this.quandle = quandle;
         }
@@ -86,13 +69,13 @@ public class Quandle extends Rack {
                     onResult.accept(quandle);
                 }
             } else {
-                final Doublet<Byte, Byte> unknown = Objects.requireNonNull(findNextUnknown(quandle));
+                final Doublet<Element, Element> unknown = Objects.requireNonNull(findNextUnknown(quandle));
 
-                final Queue<RecursiveQuandleSearcher> tasks = new ArrayDeque<>();
-                for (byte z = 0; z < quandle.n(); ++z) {
-                    final Quandle copy = quandle.copy();
+                final Queue<RecursiveQuandleSearcher<Element>> tasks = new ArrayDeque<>();
+                for (Element z : quandle.getGroup().getAllElements()) {
+                    final Quandle<Element> copy = quandle.copy();
                     copy.right(unknown.getA(), unknown.getB(), z);
-                    tasks.add(new RecursiveQuandleSearcher(onResult, copy));
+                    tasks.add(new RecursiveQuandleSearcher<>(onResult, copy));
                 }
 
                 if (!tasks.isEmpty()) {
@@ -105,15 +88,15 @@ public class Quandle extends Rack {
             }
         }
 
-        private final Consumer<Quandle> onResult;
-        private final Quandle quandle;
+        private final Consumer<Quandle<Element>> onResult;
+        private final Quandle<Element> quandle;
     }
 
-    private static Doublet<Byte, Byte> findNextUnknown(Quandle quandle) {
-        for (byte i = 0; i < quandle.n(); ++i) {
-            for (byte j = 0; j < quandle.n(); ++j) {
-                if (quandle.right(i, j) == -1) {
-                    return Doublet.create(i, j);
+    private static <Element> Doublet<Element, Element> findNextUnknown(Quandle<Element> quandle) {
+        for (Element a : quandle.getGroup().getAllElements()) {
+            for (Element b : quandle.getGroup().getAllElements()) {
+                if (quandle.right(a, b) == quandle.getGroup().getUnknownValue()) {
+                    return Doublet.create(a, b);
                 }
             }
         }
@@ -121,11 +104,11 @@ public class Quandle extends Rack {
         return null;
     }
 
-    private static int countUnknowns(Quandle quandle) {
+    private static <Element> int countUnknowns(Quandle<Element> quandle) {
         int count = 0;
-        for (byte i = 0; i < quandle.n(); ++i) {
-            for (byte j = 0; j < quandle.n(); ++j) {
-                if (quandle.right(i, j) == -1) {
+        for (Element a : quandle.getGroup().getAllElements()) {
+            for (Element b : quandle.getGroup().getAllElements()) {
+                if (quandle.right(a, b) == quandle.getGroup().getUnknownValue()) {
                     ++count;
                 }
             }
