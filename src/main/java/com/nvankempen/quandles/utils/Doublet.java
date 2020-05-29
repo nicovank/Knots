@@ -2,11 +2,11 @@ package com.nvankempen.quandles.utils;
 
 import java.util.Objects;
 
-public class Pair<A, B> {
+public class Doublet<A, B> {
     private final A a;
     private final B b;
 
-    public Pair(A a, B b) {
+    public Doublet(A a, B b) {
         this.a = a;
         this.b = b;
     }
@@ -26,7 +26,7 @@ public class Pair<A, B> {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Pair && ((Pair) other).a.equals(this.a) && ((Pair) other).b.equals(this.b);
+        return other instanceof Doublet && ((Doublet) other).a.equals(this.a) && ((Doublet) other).b.equals(this.b);
     }
 
     @Override

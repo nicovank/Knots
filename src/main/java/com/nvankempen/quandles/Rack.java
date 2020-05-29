@@ -3,9 +3,6 @@ package com.nvankempen.quandles;
 import java.util.Arrays;
 
 public class Rack {
-    private final byte n;
-    private final byte[][] triangle;
-
     public Rack(byte n) {
         this.n = n;
         this.triangle = new byte[n][n];
@@ -83,12 +80,14 @@ public class Rack {
     public boolean isValid() {
         for (byte a = 0; a < n; ++a) {
             for (byte b = 0; b < n; ++b) {
-
                 boolean found = false;
 
                 for (byte c = 0; c < n; ++c) {
+                    final byte aRc = right(a, c);
+                    final byte aRb = right(a, b);
+                    final byte bRc = right(b, c);
 
-                    if (right(c, b) == a) {
+                    if (aRc == b) {
                         if (found) {
                             return false;
                         } else {
@@ -96,12 +95,13 @@ public class Rack {
                         }
                     }
 
-                    if (right(right(a, b), c) != -1
-                            && right(right(a, c), right(b, c)) != -1
-                            && right(right(a, b), c) != right(right(a, c), right(b, c))) {
-
+                    if (right(aRb, c) != -1 && right(aRc, bRc) != -1 && right(aRb, c) != right(aRc, bRc)) {
                         return false;
                     }
+                }
+
+                if (!found) {
+                    return false;
                 }
             }
         }
@@ -111,9 +111,7 @@ public class Rack {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Rack
-                && Arrays.deepEquals(((Rack) other).triangle, this.triangle);
-
+        return other instanceof Rack && Arrays.deepEquals(((Rack) other).triangle, this.triangle);
     }
 
     @Override
@@ -125,4 +123,7 @@ public class Rack {
     public String toString() {
         return Arrays.deepToString(triangle);
     }
+
+    private final byte n;
+    private final byte[][] triangle;
 }
