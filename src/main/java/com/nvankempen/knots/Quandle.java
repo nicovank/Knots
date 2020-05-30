@@ -42,6 +42,18 @@ public class Quandle<Element> extends Rack<Element> {
         new RecursiveQuandleSearcher<>(onResult, new Quandle<>(group)).invoke();
     }
 
+    public static <Element> Quandle<Element> trivial(Group<Element> group) {
+        final Quandle<Element> quandle = new Quandle<>(group);
+
+        for (Element x : group.getAllElements()) {
+            for (Element y : group.getAllElements()) {
+                quandle.right(x, y, x);
+            }
+        }
+
+        return quandle;
+    }
+
     public boolean isInvolutory() {
         for (Element a : getGroup().getAllElements()) {
             for (Element b : getGroup().getAllElements()) {

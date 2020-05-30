@@ -2,7 +2,7 @@ package com.nvankempen.knots;
 
 import java.util.List;
 
-public interface Group<Element> {
+public abstract class Group<Element> {
     /**
      * This method should return which value should be used as the "unknown" placeholder while generating.
      * This value should NOT be returned when calling {@link #getAllElements()}.
@@ -10,7 +10,16 @@ public interface Group<Element> {
      *
      * @return The value which should be used as the "unknown" placeholder.
      */
-    Element getUnknownValue();
+    public abstract Element getUnknownValue();
+
+    /**
+     * This method should return the identity of the group with respect to the operation.
+     * That is, for any element a from the group, <code>operation(a, getIdentity())</code> and
+     * <code>operation(getIdentity(), a)</code> should both equal a.
+     *
+     * @return the identity of the group with respect to the operation.
+     */
+    public abstract Element getIdentity();
 
     /**
      * This method should return all possible elements in the group.
@@ -19,5 +28,26 @@ public interface Group<Element> {
      *
      * @return the elements contained in the group.
      */
-    List<Element> getAllElements();
+    public abstract List<Element> getAllElements();
+
+    public abstract Element operation(Element a, Element b);
+
+    /**
+     * This method returns the inverse of a given element with respect to the group
+     * {@link #operation(Element, Element)}. It uses brute-force by default, therefore it is a good idea to override it
+     * whenever possible. By default, it returns null when no inverse is found. This should NEVER happen, since an
+     * element should ALWAYS have an inverse within the group.
+     *
+     * @param a The element to find the inverse of.
+     * @return The inverse of a with respect to the group operation.
+     */
+    public Element inverse(Element a) {
+        for (Element b : getAllElements()) {
+            if (operation(a, b) == a && operation(b, a) == a) {
+                return b;
+            }
+        }
+
+        return null;
+    }
 }

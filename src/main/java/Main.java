@@ -35,12 +35,22 @@ public class Main {
             }
 
             @Override
+            public Byte getIdentity() {
+                return 1;
+            }
+
+            @Override
             public List<Byte> getAllElements() {
                 final List<Byte> elements = new ArrayList<>();
                 for (byte i = 0; i < n; ++i) {
                     elements.add(i);
                 }
                 return elements;
+            }
+
+            @Override
+            public Byte operation(Byte a, Byte b) {
+                return (byte) ((a * b) % n);
             }
         };
     }
