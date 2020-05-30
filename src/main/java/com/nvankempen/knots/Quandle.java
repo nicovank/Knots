@@ -54,16 +54,40 @@ public class Quandle<Element> extends Rack<Element> {
         return quandle;
     }
 
-    public boolean isInvolutory() {
-        for (Element a : getGroup().getAllElements()) {
-            for (Element b : getGroup().getAllElements()) {
-                if (left(a, left(a, b)) != b || right(right(b, a), a) != b) {
-                    return false;
-                }
+    public static <Element> Quandle<Element> fold(Group<Element> group, int n) {
+        final Quandle<Element> quandle = new Quandle<>(group);
+
+        for (Element x : group.getAllElements()) {
+            for (Element y : group.getAllElements()) {
+                quandle.right(x, y, group.operation(group.operation(group.pow(y, -n), x), group.pow(y, n)));
             }
         }
 
-        return true;
+        return quandle;
+    }
+
+    public static <Element> Quandle<Element> dihedral(Group<Element> group) {
+        final Quandle<Element> quandle = new Quandle<>(group);
+
+        for (Element x : group.getAllElements()) {
+            for (Element y : group.getAllElements()) {
+                quandle.right(x, y, group.operation(group.pow(y, 2), group.pow(x, -1)));
+            }
+        }
+
+        return quandle;
+    }
+
+    public static <Element> Quandle<Element> alexander(Group<Element> group, byte t) {
+        final Quandle<Element> quandle = new Quandle<>(group);
+
+        for (Element x : group.getAllElements()) {
+            for (Element y : group.getAllElements()) {
+                quandle.right(x, y, group.operation(group.pow(x, t), group.pow(y, 1 - t)));
+            }
+        }
+
+        return quandle;
     }
 
     private static final class RecursiveQuandleSearcher<Element> extends RecursiveAction {

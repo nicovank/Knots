@@ -50,4 +50,12 @@ public abstract class Group<Element> {
 
         return null;
     }
+
+    public Element pow(Element a, int n) {
+        if (n < 0) {
+            return pow(inverse(a), -n);
+        }
+
+        return (n == 0) ? getIdentity() : operation(a, pow(a, n - 1));
+    }
 }
