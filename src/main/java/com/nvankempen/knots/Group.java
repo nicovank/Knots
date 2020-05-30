@@ -1,5 +1,6 @@
 package com.nvankempen.knots;
 
+import java.util.Collection;
 import java.util.List;
 
 public abstract class Group<Element> {
@@ -57,5 +58,49 @@ public abstract class Group<Element> {
         }
 
         return (n == 0) ? getIdentity() : operation(a, pow(a, n - 1));
+    }
+
+    public boolean isClosed() {
+        final Collection<Element> elements = getAllElements();
+
+        for (Element a : elements) {
+            for (Element b : elements) {
+                if (!elements.contains(operation(a, b))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean isAssociative() {
+        final Collection<Element> elements = getAllElements();
+
+        for (Element a : elements) {
+            for (Element b : elements) {
+                for (Element c : elements) {
+                    if (operation(operation(a, b), c) != operation(a, operation(b, c))) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean isAbelian() {
+        final Collection<Element> elements = getAllElements();
+
+        for (Element a : elements) {
+            for (Element b : elements) {
+                if (operation(a, b) != operation(b, a)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
