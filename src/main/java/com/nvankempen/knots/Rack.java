@@ -1,5 +1,12 @@
 package com.nvankempen.knots;
 
+import com.nvankempen.knots.utils.Permutations;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.function.Function;
+
 public class Rack<Element> extends Shelf<Element> {
     public Rack(Group<Element> group) {
         super(group);
@@ -45,5 +52,28 @@ public class Rack<Element> extends Shelf<Element> {
         }
 
         return true;
+    }
+
+    public <Other> boolean isIsomorphicTo(Rack<Other> other) {
+        if (n() != other.n()) {
+            return false;
+        }
+
+        final List<Element> elements = getGroup().getAllElements();
+
+        searching:
+        for (List<Other> phi: Permutations.all(other.getGroup().getAllElements())) {
+            for (Element x : getGroup().getAllElements()) {
+                for (Element y : getGroup().getAllElements()) {
+                    if (phi.get(elements.indexOf(right(x, y))) != other.right(phi.get(elements.indexOf(x)), phi.get(elements.indexOf(y)))) {
+                        continue searching;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

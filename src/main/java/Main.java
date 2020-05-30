@@ -1,5 +1,7 @@
 import com.nvankempen.knots.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,8 +35,8 @@ public class Main {
             }
 
             @Override
-            public SortedSet<Byte> getAllElements() {
-                final SortedSet<Byte> elements = new TreeSet<>();
+            public List<Byte> getAllElements() {
+                final List<Byte> elements = new ArrayList<>();
                 for (byte i = 0; i < n; ++i) {
                     elements.add(i);
                 }

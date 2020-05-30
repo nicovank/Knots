@@ -115,7 +115,7 @@ public class Shelf<Element> {
             return "[]";
         }
 
-        final List<Element> elements = new ArrayList<>(group.getAllElements());
+        final List<Element> elements = group.getAllElements();
         final StringBuilder builder = new StringBuilder();
 
         builder.append("[");

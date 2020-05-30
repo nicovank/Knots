@@ -77,5 +77,10 @@ public class SingQuandle<Element> extends Quandle<Element> {
         return true;
     }
 
+    @Override
+    public <Other> boolean isIsomorphicTo(Rack<Other> other) {
+        throw new UnsupportedOperationException();
+    }
+
     private final Map<Doublet<Element, Element>, Element> R1;
 }
