@@ -66,32 +66,14 @@ public class Shelf<Element> {
     public boolean isValid() {
         for (Element a : group.getAllElements()) {
             for (Element b : group.getAllElements()) {
-                boolean unknowns = false;
-                boolean found = false;
-
                 for (Element c : group.getAllElements()) {
-                    final Element cRb = right(c, b);
                     final Element aRc = right(a, c);
                     final Element aRb = right(a, b);
                     final Element bRc = right(b, c);
 
-                    if (cRb == getGroup().getUnknownValue()) {
-                        unknowns = true;
-                    } else if (!unknowns && cRb == a) {
-                        if (found) {
-                            return false;
-                        } else {
-                            found = true;
-                        }
-                    }
-
                     if (right(aRb, c) != group.getUnknownValue() && right(aRc, bRc) != group.getUnknownValue() && right(aRb, c) != right(aRc, bRc)) {
                         return false;
                     }
-                }
-
-                if (!unknowns && !found) {
-                    return false;
                 }
             }
         }
