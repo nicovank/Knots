@@ -1,8 +1,8 @@
 import com.nvankempen.knots.*;
-import com.nvankempen.knots.utils.Box;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,11 +13,9 @@ public class Main {
     }
 
     private static int search(int n) {
-        final Box<Integer> count = Box.create(0);
-        Quandle.generate(Z(n), q -> {
-            count.setElement(count.getElement() + 1);
-        });
-        return count.getElement();
+        final AtomicInteger count = new AtomicInteger(0);
+        Quandle.generate(Z(n), q -> count.getAndIncrement());
+        return count.get();
     }
 
     private static Group<Byte> Z(int n) {
