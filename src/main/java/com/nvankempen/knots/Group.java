@@ -2,7 +2,7 @@ package com.nvankempen.knots;
 
 import java.util.List;
 
-public interface Group<E> {
+public interface Group<Element> {
     /**
      * This method should return which value should be used as the "unknown" placeholder while generating.
      * This value should NOT be returned when calling {@link #getAllElements()}.
@@ -10,7 +10,7 @@ public interface Group<E> {
      *
      * @return The value which should be used as the "unknown" placeholder.
      */
-    E getUnknownValue();
+    Element getUnknownValue();
 
     /**
      * This method should return all possible elements in the group.
@@ -19,5 +19,5 @@ public interface Group<E> {
      *
      * @return the elements contained in the group.
      */
-    List<E> getAllElements();
+    List<Element> getAllElements();
 }
