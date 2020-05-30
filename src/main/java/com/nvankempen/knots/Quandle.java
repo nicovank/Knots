@@ -15,7 +15,7 @@ public class Quandle<Element> extends Rack<Element> {
     }
 
     public Quandle(Rack<Element> rack) {
-        super(rack.getGroup(), rack.right());
+        super(rack);
     }
 
     @Override
