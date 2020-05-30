@@ -2,9 +2,7 @@ package com.nvankempen.knots;
 
 import com.nvankempen.knots.utils.Doublet;
 
-import java.util.ArrayDeque;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
@@ -88,6 +86,47 @@ public class Quandle<Element> extends Rack<Element> {
         }
 
         return quandle;
+    }
+
+    public boolean isLatin() {
+        for (Element x : getGroup().getAllElements()) {
+            final Set<Element> found = new HashSet<>();
+            for (Element a : getGroup().getAllElements()) {
+                final Element xRy = right(x, a);
+                if (found.contains(xRy)) {
+                    return false;
+                } else {
+                    found.add(xRy);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean isMedial() {
+        final Element unknown = getGroup().getUnknownValue();
+
+        for (Element x : getGroup().getAllElements()) {
+            for (Element y : getGroup().getAllElements()) {
+                final Element xRy = right(x, y);
+
+                for (Element u : getGroup().getAllElements()) {
+                    final Element xRu = right(x, u);
+
+                    for (Element v : getGroup().getAllElements()) {
+                        final Element uRv = right(u, v);
+                        final Element yRv = right(y, v);
+
+                        if (right(xRy, uRv) != unknown && right(xRu, yRv) != unknown && right(xRy, uRv) != right(xRu, yRv)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private static final class RecursiveQuandleSearcher<Element> extends RecursiveAction {
