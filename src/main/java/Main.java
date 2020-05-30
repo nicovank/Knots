@@ -6,11 +6,18 @@ import java.util.TreeSet;
 
 public class Main {
     public static void main(String[] args) {
+        final long start = System.nanoTime();
+        final int n = search(Integer.parseInt(args[0]));
+        final long elapsed = System.nanoTime() - start;
+        System.out.println("Found " + n + " quandles in " + (elapsed / Math.pow(10, 9)) + " seconds.");
+    }
+
+    private static int search(int n) {
         final Box<Integer> count = Box.create(0);
-        Quandle.generate(Z(6), q -> {
+        Quandle.generate(Z(n), q -> {
             count.setElement(count.getElement() + 1);
         });
-        System.out.println(count);
+        return count.getElement();
     }
 
     private static Group<Byte> Z(int n) {
