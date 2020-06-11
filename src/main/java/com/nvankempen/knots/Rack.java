@@ -2,10 +2,7 @@ package com.nvankempen.knots;
 
 import com.nvankempen.knots.utils.Permutations;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.function.Function;
 
 public class Rack<Element> extends Shelf<Element> {
     public Rack(Group<Element> group) {
@@ -34,9 +31,9 @@ public class Rack<Element> extends Shelf<Element> {
                 for (Element c : getGroup().getAllElements()) {
                     final Element cRb = right(c, b);
 
-                    if (cRb == getGroup().getUnknownValue()) {
+                    if (cRb.equals(getGroup().getUnknownValue())) {
                         return true;
-                    } else if (cRb == a) {
+                    } else if (cRb.equals(a)) {
                         if (found) {
                             return false;
                         } else {
@@ -65,7 +62,7 @@ public class Rack<Element> extends Shelf<Element> {
         for (List<Other> phi: Permutations.all(other.getGroup().getAllElements())) {
             for (Element x : getGroup().getAllElements()) {
                 for (Element y : getGroup().getAllElements()) {
-                    if (phi.get(elements.indexOf(right(x, y))) != other.right(phi.get(elements.indexOf(x)), phi.get(elements.indexOf(y)))) {
+                    if (!phi.get(elements.indexOf(right(x, y))).equals(other.right(phi.get(elements.indexOf(x)), phi.get(elements.indexOf(y))))) {
                         continue searching;
                     }
                 }

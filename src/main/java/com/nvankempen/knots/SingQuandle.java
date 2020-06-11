@@ -28,11 +28,28 @@ public class SingQuandle<Element> extends Quandle<Element> {
         R1.put(Doublet.create(x, y), z);
     }
 
+    public Map<Doublet<Element, Element>, Element> R1() {
+        return R1;
+    }
+
     @Override
     public SingQuandle<Element> copy() {
         final Map<Doublet<Element, Element>, Element> copy = new HashMap<>();
         R1.forEach(copy::put);
         return new SingQuandle<>(super.copy(), copy);
+    }
+
+    @Override
+    public boolean isComplete() {
+        for (Element i : getGroup().getAllElements()) {
+            for (Element j : getGroup().getAllElements()) {
+                if (R1(i, j).equals(getGroup().getUnknownValue())) {
+                    return false;
+                }
+            }
+        }
+
+        return super.isComplete();
     }
 
     @Override
@@ -50,7 +67,7 @@ public class SingQuandle<Element> extends Quandle<Element> {
                 final Element xCy = R1(x, y);
                 final Element xDy = R2(x, y);
 
-                if (right(xCy, xDy) != unknown && R2(y, xRy) != unknown && right(xCy, xDy) != R2(y, xRy)) {
+                if (!right(xCy, xDy).equals(unknown) && !R2(y, xRy).equals(unknown) && !right(xCy, xDy).equals(R2(y, xRy))) {
                     return false;
                 }
 
@@ -59,15 +76,15 @@ public class SingQuandle<Element> extends Quandle<Element> {
                     final Element xCz = R1(x, z);
                     final Element xDz = R1(x, z);
 
-                    if (right(R1(xLy, z), y) != unknown && R1(x, zRy) != unknown && right(R1(xLy, z), y) != R1(x, zRy)) {
+                    if (!right(R1(xLy, z), y).equals(unknown) && !R1(x, zRy).equals(unknown) && !right(R1(xLy, z), y).equals(R1(x, zRy))) {
                         return false;
                     }
 
-                    if (R2(xLy, z) != unknown && left(R2(x, zRy), y) != unknown && R2(xLy, z) != left(R2(x, zRy), y)) {
+                    if (!R2(xLy, z).equals(unknown) && !left(R2(x, zRy), y).equals(unknown) && !R2(xLy, z).equals(left(R2(x, zRy), y))) {
                         return false;
                     }
 
-                    if (right(left(y, xCz), x) != unknown && left(right(y, xDz), z) != unknown && right(left(y, xCz), x) != left(right(y, xDz), z)) {
+                    if (!right(left(y, xCz), x).equals(unknown) && !left(right(y, xDz), z).equals(unknown) && !right(left(y, xCz), x).equals(left(right(y, xDz), z))) {
                         return false;
                     }
                 }

@@ -29,7 +29,7 @@ public class Shelf<Element> {
 
     public Element left(Element z, Element y) {
         for (Element x : group.getAllElements()) {
-            if (right(x, y) == z) {
+            if (right(x, y).equals(z)) {
                 return x;
             }
         }
@@ -54,7 +54,7 @@ public class Shelf<Element> {
     public boolean isComplete() {
         for (Element i : group.getAllElements()) {
             for (Element j : group.getAllElements()) {
-                if (right(i, j) == group.getUnknownValue()) {
+                if (right(i, j).equals(group.getUnknownValue())) {
                     return false;
                 }
             }
@@ -71,7 +71,7 @@ public class Shelf<Element> {
                     final Element aRb = right(a, b);
                     final Element bRc = right(b, c);
 
-                    if (right(aRb, c) != group.getUnknownValue() && right(aRc, bRc) != group.getUnknownValue() && right(aRb, c) != right(aRc, bRc)) {
+                    if (!right(aRb, c).equals(group.getUnknownValue()) && !right(aRc, bRc).equals(group.getUnknownValue()) && !right(aRb, c).equals(right(aRc, bRc))) {
                         return false;
                     }
                 }

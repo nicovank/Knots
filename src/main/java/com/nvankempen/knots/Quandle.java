@@ -28,7 +28,7 @@ public class Quandle<Element> extends Rack<Element> {
         }
 
         for (Element x : getGroup().getAllElements()) {
-            if (right(x, x) != getGroup().getUnknownValue() && right(x, x) != x) {
+            if (!right(x, x).equals(getGroup().getUnknownValue()) && !right(x, x).equals(x)) {
                 return false;
             }
         }
@@ -118,7 +118,7 @@ public class Quandle<Element> extends Rack<Element> {
                         final Element uRv = right(u, v);
                         final Element yRv = right(y, v);
 
-                        if (right(xRy, uRv) != unknown && right(xRu, yRv) != unknown && right(xRy, uRv) != right(xRu, yRv)) {
+                        if (!right(xRy, uRv).equals(unknown) && !right(xRu, yRv).equals(unknown) && !right(xRy, uRv).equals(right(xRu, yRv))) {
                             return false;
                         }
                     }
@@ -172,7 +172,7 @@ public class Quandle<Element> extends Rack<Element> {
     private static <Element> Doublet<Element, Element> findNextUnknown(Quandle<Element> quandle) {
         for (Element a : quandle.getGroup().getAllElements()) {
             for (Element b : quandle.getGroup().getAllElements()) {
-                if (quandle.right(a, b) == quandle.getGroup().getUnknownValue()) {
+                if (quandle.right(a, b).equals(quandle.getGroup().getUnknownValue())) {
                     return Doublet.create(a, b);
                 }
             }
@@ -185,7 +185,7 @@ public class Quandle<Element> extends Rack<Element> {
         int count = 0;
         for (Element a : quandle.getGroup().getAllElements()) {
             for (Element b : quandle.getGroup().getAllElements()) {
-                if (quandle.right(a, b) == quandle.getGroup().getUnknownValue()) {
+                if (quandle.right(a, b).equals(quandle.getGroup().getUnknownValue())) {
                     ++count;
                 }
             }
