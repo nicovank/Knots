@@ -61,8 +61,12 @@ public class Rack<Element> extends Shelf<Element> {
         searching:
         for (List<Other> phi: Permutations.all(other.getGroup().getAllElements())) {
             for (Element x : getGroup().getAllElements()) {
+                final Other px = phi.get(elements.indexOf(x));
+
                 for (Element y : getGroup().getAllElements()) {
-                    if (!phi.get(elements.indexOf(right(x, y))).equals(other.right(phi.get(elements.indexOf(x)), phi.get(elements.indexOf(y))))) {
+                    final Other py = phi.get(elements.indexOf(y));
+
+                    if (!phi.get(elements.indexOf(right(x, y))).equals(other.right(px, py))) {
                         continue searching;
                     }
                 }

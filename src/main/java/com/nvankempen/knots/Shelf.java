@@ -71,7 +71,10 @@ public class Shelf<Element> {
                     final Element aRb = right(a, b);
                     final Element bRc = right(b, c);
 
-                    if (!right(aRb, c).equals(group.getUnknownValue()) && !right(aRc, bRc).equals(group.getUnknownValue()) && !right(aRb, c).equals(right(aRc, bRc))) {
+                    if (!right(aRb, c).equals(group.getUnknownValue())
+                            && !right(aRc, bRc).equals(group.getUnknownValue())
+                            && !right(aRb, c).equals(right(aRc, bRc))) {
+
                         return false;
                     }
                 }

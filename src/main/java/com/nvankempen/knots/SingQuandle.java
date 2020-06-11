@@ -67,7 +67,10 @@ public class SingQuandle<Element> extends Quandle<Element> {
                 final Element xCy = R1(x, y);
                 final Element xDy = R2(x, y);
 
-                if (!right(xCy, xDy).equals(unknown) && !R2(y, xRy).equals(unknown) && !right(xCy, xDy).equals(R2(y, xRy))) {
+                if (!right(xCy, xDy).equals(unknown)
+                        && !R2(y, xRy).equals(unknown)
+                        && !right(xCy, xDy).equals(R2(y, xRy))) {
+
                     return false;
                 }
 
@@ -76,15 +79,24 @@ public class SingQuandle<Element> extends Quandle<Element> {
                     final Element xCz = R1(x, z);
                     final Element xDz = R1(x, z);
 
-                    if (!right(R1(xLy, z), y).equals(unknown) && !R1(x, zRy).equals(unknown) && !right(R1(xLy, z), y).equals(R1(x, zRy))) {
+                    if (!right(R1(xLy, z), y).equals(unknown)
+                            && !R1(x, zRy).equals(unknown)
+                            && !right(R1(xLy, z), y).equals(R1(x, zRy))) {
+
                         return false;
                     }
 
-                    if (!R2(xLy, z).equals(unknown) && !left(R2(x, zRy), y).equals(unknown) && !R2(xLy, z).equals(left(R2(x, zRy), y))) {
+                    if (!R2(xLy, z).equals(unknown)
+                            && !left(R2(x, zRy), y).equals(unknown)
+                            && !R2(xLy, z).equals(left(R2(x, zRy), y))) {
+
                         return false;
                     }
 
-                    if (!right(left(y, xCz), x).equals(unknown) && !left(right(y, xDz), z).equals(unknown) && !right(left(y, xCz), x).equals(left(right(y, xDz), z))) {
+                    if (!right(left(y, xCz), x).equals(unknown)
+                            && !left(right(y, xDz), z).equals(unknown)
+                            && !right(left(y, xCz), x).equals(left(right(y, xDz), z))) {
+
                         return false;
                     }
                 }

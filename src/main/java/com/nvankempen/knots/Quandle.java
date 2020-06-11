@@ -118,7 +118,10 @@ public class Quandle<Element> extends Rack<Element> {
                         final Element uRv = right(u, v);
                         final Element yRv = right(y, v);
 
-                        if (!right(xRy, uRv).equals(unknown) && !right(xRu, yRv).equals(unknown) && !right(xRy, uRv).equals(right(xRu, yRv))) {
+                        if (!right(xRy, uRv).equals(unknown)
+                                && !right(xRu, yRv).equals(unknown)
+                                && !right(xRy, uRv).equals(right(xRu, yRv))) {
+
                             return false;
                         }
                     }
