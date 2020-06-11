@@ -33,6 +33,19 @@ public abstract class Group<Element> {
 
     public abstract Element operation(Element a, Element b);
 
+    public Element operation(Element first, Element... rest) {
+        if (rest.length == 0) {
+            return first;
+        }
+
+        Element element = first;
+        for (Element other : rest) {
+            element = operation(element, other);
+        }
+
+        return element;
+    }
+
     /**
      * This method returns the inverse of a given element with respect to the group
      * {@link #operation(Element, Element)}. It uses brute-force by default, therefore it is a good idea to override it
