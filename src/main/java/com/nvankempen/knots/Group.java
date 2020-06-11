@@ -44,7 +44,7 @@ public abstract class Group<Element> {
      */
     public Element inverse(Element a) {
         for (Element b : getAllElements()) {
-            if (operation(a, b) == a && operation(b, a) == a) {
+            if (operation(a, b) == getIdentity() && operation(b, a) == getIdentity()) {
                 return b;
             }
         }
