@@ -65,6 +65,14 @@ public abstract class Group<Element> {
         return null;
     }
 
+    /**
+     * This methods computes a^n. It only uses a basic loop, and should be overridden with the square/multiply algorithm
+     * in the context of number groups.
+     *
+     * @param a the base of the exponentiation.
+     * @param n the power of the exponentiation.
+     * @return a^n, following the group operation.
+     */
     public Element pow(Element a, int n) {
         if (n < 0) {
             return pow(inverse(a), -n);
