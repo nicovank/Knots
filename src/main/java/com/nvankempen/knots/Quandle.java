@@ -36,10 +36,6 @@ public class Quandle<Element> extends Rack<Element> {
         return true;
     }
 
-    public static <Element> void generate(Group<Element> group, Consumer<Quandle<Element>> onResult) {
-        new RecursiveQuandleSearcher<>(onResult, new Quandle<>(group)).invoke();
-    }
-
     public static <Element> Quandle<Element> trivial(Group<Element> group) {
         final Quandle<Element> quandle = new Quandle<>(group);
 
@@ -130,6 +126,10 @@ public class Quandle<Element> extends Rack<Element> {
         }
 
         return true;
+    }
+
+    public static <Element> void generate(Group<Element> group, Consumer<Quandle<Element>> onResult) {
+        new RecursiveQuandleSearcher<>(onResult, new Quandle<>(group)).invoke();
     }
 
     private static final class RecursiveQuandleSearcher<Element> extends RecursiveAction {
