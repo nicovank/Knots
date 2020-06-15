@@ -70,10 +70,6 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
         final A unknown = group.getUnknownValue();
 
         for (X x : getGroup().getAllElements()) {
-            if (phi(x, x) != unknown && phi(x, x) != getGroup().getIdentity()) {
-                return false;
-            }
-
             for (X y : getGroup().getAllElements()) {
                 final X xRy = right(x, y);
                 final X xLy = left(x, y);
@@ -82,6 +78,7 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                 final A xPy = phi(x, y);
                 final A xQy = prime(x, y);
 
+                // 5.3
                 if (!xQy.equals(unknown)
                         && !phi(xCy, xDy).equals(unknown)
                         && !xPy.equals(unknown)
@@ -100,15 +97,20 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                     final A xPz = phi(x, z);
                     final A zPy = phi(z, y);
 
-                    if (!xPy.equals(unknown)
-                            && !phi(xRy, z).equals(unknown)
-                            && !xPz.equals(unknown)
-                            && !phi(xRz, yRz).equals(unknown)
-                            && !group.operation(xPy, phi(xRy, z)).equals(group.operation(xPz, phi(xRz, yRz)))) {
+                    // 5.1
+                    if (!phi(xLy, y).equals(unknown)
+                            && !prime(xLy, z).equals(unknown)
+                            && !phi(R1(xLy, z), y).equals(unknown)
+                            && !zPy.equals(unknown)
+                            && !prime(x, zRy).equals(unknown)
+                            && !phi(left(R2(x, zRy), y), y).equals(unknown)
+                            && !group.operation(group.inverse(phi(xLy, y)), prime(xLy, z), phi(R1(xLy, z), y))
+                            .equals(group.operation(zPy, prime(x, zRy), group.inverse(phi(left(R2(x, zRy), y), y))))) {
 
                         return false;
                     }
 
+                    // 5.2
                     if (!phi(left(y, xCz), x).equals(unknown)
                             && !phi(left(y, xCz), xCz).equals(unknown)
                             && !phi(left(right(y, xDz), z), z).equals(unknown)
@@ -119,14 +121,12 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                         return false;
                     }
 
-                    if (!phi(xLy, y).equals(unknown)
-                            && !prime(xLy, z).equals(unknown)
-                            && !phi(R1(xLy, z), y).equals(unknown)
-                            && !zPy.equals(unknown)
-                            && !prime(x, zRy).equals(unknown)
-                            && !phi(left(R2(x, zRy), y), y).equals(unknown)
-                            && !group.operation(group.inverse(phi(xLy, y)), prime(xLy, z), phi(R1(xLy, z), y))
-                            .equals(group.operation(zPy, prime(x, zRy), group.inverse(phi(left(R2(x, zRy), y), y))))) {
+                    // 6.1
+                    if (!xPy.equals(unknown)
+                            && !phi(xRy, z).equals(unknown)
+                            && !xPz.equals(unknown)
+                            && !phi(xRz, yRz).equals(unknown)
+                            && !group.operation(xPy, phi(xRy, z)).equals(group.operation(xPz, phi(xRz, yRz)))) {
 
                         return false;
                     }
