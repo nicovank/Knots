@@ -2,8 +2,9 @@ package com.nvankempen.knots;
 
 import com.nvankempen.knots.utils.Doublet;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.RecursiveAction;
+import java.util.function.Consumer;
 
 /**
  * This class needs two groups to operate on. The regular group (as used in SingQuandle and its superclasses), and the
@@ -13,7 +14,7 @@ import java.util.Map;
  * @param <A> The Abelian group used for phi and phi prime.
  */
 public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
-    
+
     /**
      * The OrientedSingquandle constructors require that the given singquandle is already well-defined and valid.
      * This could change in the future, but for now it speeds up the search for phi and phi prime functions.
@@ -36,6 +37,10 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
         this.group = group;
         this.phi = phi;
         this.prime = prime;
+    }
+
+    public Group<A> getPhiGroup() {
+        return group;
     }
 
     public A phi(X x, X y) {
@@ -122,19 +127,101 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                     }
 
                     // 6.1
-                    if (!xPy.equals(unknown)
+                    /* if (!xPy.equals(unknown)
                             && !phi(xRy, z).equals(unknown)
                             && !xPz.equals(unknown)
                             && !phi(xRz, yRz).equals(unknown)
                             && !group.operation(xPy, phi(xRy, z)).equals(group.operation(xPz, phi(xRz, yRz)))) {
 
                         return false;
-                    }
+                    } */
                 }
             }
         }
 
         return true;
+    }
+
+    /**
+     * This code assumes that phi is already well-defined and valid, and that we are solving uniquely for phi prime.
+     * To change this and include a search for phi, uncomment code relating to equation 6.1 in {@link #isValid()}.
+     * Further, findNextUnknown will need to be modified to return a triplet, with an extra variable indicating whether
+     * the unknown was found in phi or phi prime. Finally the countUnknowns and the searcher's compute will have to be
+     * modified accordingly.
+     */
+    public static <X, A> void generate(OrientedSingQuandle<X, A> initial,
+                                       Consumer<OrientedSingQuandle<X, A>> onResult) {
+
+        new RecursiveOrientedSingQuandleSearcher<>(onResult, initial).invoke();
+    }
+
+    private static final class RecursiveOrientedSingQuandleSearcher<X, A> extends RecursiveAction {
+        private static final int DIRECT_SOLVE_THRESHOLD = 5;
+
+        RecursiveOrientedSingQuandleSearcher(Consumer<OrientedSingQuandle<X, A>> onResult,
+                                             OrientedSingQuandle<X, A> quandle) {
+
+            this.onResult = onResult;
+            this.quandle = quandle;
+        }
+
+        @Override
+        public void compute() {
+            if (quandle.isComplete()) {
+                if (quandle.isValid()) {
+                    onResult.accept(quandle);
+                }
+            } else {
+                final Doublet<X, X> unknown = Objects.requireNonNull(findNextUnknown(quandle));
+
+                final Queue<RecursiveOrientedSingQuandleSearcher<X, A>> tasks = new ArrayDeque<>();
+                for (A z : quandle.getPhiGroup().getAllElements()) {
+                    final OrientedSingQuandle<X, A> copy = quandle.copy();
+                    copy.prime(unknown.getA(), unknown.getB(), z);
+                    if (copy.isValid()) {
+                        tasks.add(new RecursiveOrientedSingQuandleSearcher<>(onResult, copy));
+                    }
+                }
+
+                if (!tasks.isEmpty()) {
+                    if (countUnknowns(quandle) < DIRECT_SOLVE_THRESHOLD) {
+                        tasks.forEach(RecursiveOrientedSingQuandleSearcher::compute);
+                    } else {
+                        invokeAll(tasks);
+                    }
+                }
+            }
+        }
+
+        private final Consumer<OrientedSingQuandle<X, A>> onResult;
+        private final OrientedSingQuandle<X, A> quandle;
+    }
+
+    private static <X, A> Doublet<X, X> findNextUnknown(OrientedSingQuandle<X, A> quandle) {
+        for (X a : quandle.getGroup().getAllElements()) {
+            for (X b : quandle.getGroup().getAllElements()) {
+                // We only check for prime, since we assume phi is already well-defined and valid.
+                if (quandle.prime(a, b).equals(quandle.getPhiGroup().getUnknownValue())) {
+                    return Doublet.create(a, b);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static <X, A> int countUnknowns(OrientedSingQuandle<X, A> quandle) {
+        int count = 0;
+        for (X a : quandle.getGroup().getAllElements()) {
+            for (X b : quandle.getGroup().getAllElements()) {
+                // We only check for prime, since we assume phi is already well-defined and valid.
+                if (quandle.prime(a, b).equals(quandle.getPhiGroup().getUnknownValue())) {
+                    ++count;
+                }
+            }
+        }
+
+        return count;
     }
 
     private final Group<A> group;
