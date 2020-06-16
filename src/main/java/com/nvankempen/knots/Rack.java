@@ -5,7 +5,7 @@ import com.nvankempen.knots.utils.Permutations;
 import java.util.List;
 
 public class Rack<Element> extends Shelf<Element> {
-    public Rack(Group<Element> group) {
+    public Rack(Ring<Element> group) {
         super(group);
     }
 

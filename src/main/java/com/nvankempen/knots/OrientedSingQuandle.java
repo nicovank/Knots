@@ -7,11 +7,11 @@ import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
 /**
- * This class needs two groups to operate on. The regular group (as used in SingQuandle and its superclasses), and the
- * group phi and phi prime output to.
+ * This class needs two rings to operate on. The regular group (as used in SingQuandle and its superclasses), and the
+ * ring phi and phi prime output to.
  *
- * @param <X> The group the quandle operates on (used for right, left, R1, and R2).
- * @param <A> The Abelian group used for phi and phi prime.
+ * @param <X> The ring the quandle operates on (used for right, left, R1, and R2).
+ * @param <A> The Abelian ring used for phi and phi prime.
  */
 public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
 
@@ -21,7 +21,7 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
      *
      * @param singquandle A complete and valid singquandle
      */
-    public OrientedSingQuandle(SingQuandle<X> singquandle, Group<A> group) {
+    public OrientedSingQuandle(SingQuandle<X> singquandle, Ring<A> group) {
         super(singquandle, singquandle.R1());
 
         this.group = group;
@@ -29,7 +29,7 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
         this.prime = new HashMap<>();
     }
 
-    public OrientedSingQuandle(SingQuandle<X> singquandle, Group<A> group, Map<Doublet<X, X>, A> phi,
+    public OrientedSingQuandle(SingQuandle<X> singquandle, Ring<A> group, Map<Doublet<X, X>, A> phi,
                                Map<Doublet<X, X>, A> prime) {
 
         super(singquandle, singquandle.R1());
@@ -39,7 +39,7 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
         this.prime = prime;
     }
 
-    public Group<A> getPhiGroup() {
+    public Ring<A> getPhiGroup() {
         return group;
     }
 
@@ -88,7 +88,7 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                         && !phi(xCy, xDy).equals(unknown)
                         && !xPy.equals(unknown)
                         && !prime(y, xRy).equals(unknown)
-                        && !group.operation(xQy, phi(xCy, xDy)).equals(group.operation(xPy, prime(y, xRy)))) {
+                        && !group.add(xQy, phi(xCy, xDy)).equals(group.add(xPy, prime(y, xRy)))) {
 
                     return false;
                 }
@@ -109,8 +109,12 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                             && !zPy.equals(unknown)
                             && !prime(x, zRy).equals(unknown)
                             && !phi(left(R2(x, zRy), y), y).equals(unknown)
-                            && !group.operation(group.inverse(phi(xLy, y)), prime(xLy, z), phi(R1(xLy, z), y))
-                            .equals(group.operation(zPy, prime(x, zRy), group.inverse(phi(left(R2(x, zRy), y), y))))) {
+                            && !group.add(group.getAdditiveInverse(phi(xLy, y)), prime(xLy, z), phi(R1(xLy, z), y))
+                            .equals(group.add(
+                                    zPy,
+                                    prime(x, zRy),
+                                    group.getAdditiveInverse(phi(left(R2(x, zRy), y), y))
+                            ))) {
 
                         return false;
                     }
@@ -120,21 +124,21 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                             && !phi(left(y, xCz), xCz).equals(unknown)
                             && !phi(left(right(y, xDz), z), z).equals(unknown)
                             && !phi(y, xDz).equals(unknown)
-                            && !group.operation(phi(left(y, xCz), x), group.inverse(phi(left(y, xCz), xCz)))
-                            .equals(group.operation(group.inverse(phi(left(right(y, xDz), z), z)), phi(y, xDz)))) {
+                            && !group.add(phi(left(y, xCz), x), group.getAdditiveInverse(phi(left(y, xCz), xCz)))
+                            .equals(group.add(group.getAdditiveInverse(phi(left(right(y, xDz), z), z)), phi(y, xDz)))) {
 
                         return false;
                     }
 
                     // 6.1
-                    /* if (!xPy.equals(unknown)
+                    if (!xPy.equals(unknown)
                             && !phi(xRy, z).equals(unknown)
                             && !xPz.equals(unknown)
                             && !phi(xRz, yRz).equals(unknown)
-                            && !group.operation(xPy, phi(xRy, z)).equals(group.operation(xPz, phi(xRz, yRz)))) {
+                            && !group.add(xPy, phi(xRy, z)).equals(group.add(xPz, phi(xRz, yRz)))) {
 
                         return false;
-                    } */
+                    }
                 }
             }
         }
@@ -224,7 +228,7 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
         return count;
     }
 
-    private final Group<A> group;
+    private final Ring<A> group;
     private final Map<Doublet<X, X>, A> phi;
     private final Map<Doublet<X, X>, A> prime;
 }

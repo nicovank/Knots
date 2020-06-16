@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SingQuandle<Element> extends Quandle<Element> {
-    public SingQuandle(Group<Element> group) {
+    public SingQuandle(Ring<Element> group) {
         super(group);
         this.R1 = new HashMap<>();
     }

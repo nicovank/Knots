@@ -5,17 +5,17 @@ import com.nvankempen.knots.utils.Doublet;
 import java.util.*;
 
 public class Shelf<Element> {
-    public Shelf(Group<Element> group) {
+    public Shelf(Ring<Element> group) {
         this.group = group;
         this.triangle = new HashMap<>();
     }
 
-    public Shelf(Group<Element> group, Map<Doublet<Element, Element>, Element> triangle) {
+    public Shelf(Ring<Element> group, Map<Doublet<Element, Element>, Element> triangle) {
         this.group = group;
         this.triangle = new HashMap<>(triangle);
     }
 
-    public Group<Element> getGroup() {
+    public Ring<Element> getGroup() {
         return group;
     }
 
@@ -123,6 +123,6 @@ public class Shelf<Element> {
         return new String(builder);
     }
 
-    private final Group<Element> group;
+    private final Ring<Element> group;
     private final Map<Doublet<Element, Element>, Element> triangle;
 }

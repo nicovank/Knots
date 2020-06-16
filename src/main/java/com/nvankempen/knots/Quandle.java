@@ -7,7 +7,7 @@ import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
 public class Quandle<Element> extends Rack<Element> {
-    public Quandle(Group<Element> group) {
+    public Quandle(Ring<Element> group) {
         super(group);
         group.getAllElements().forEach(e -> right(e, e, e));
     }
@@ -36,99 +36,7 @@ public class Quandle<Element> extends Rack<Element> {
         return true;
     }
 
-    public static <Element> Quandle<Element> trivial(Group<Element> group) {
-        final Quandle<Element> quandle = new Quandle<>(group);
-
-        for (Element x : group.getAllElements()) {
-            for (Element y : group.getAllElements()) {
-                quandle.right(x, y, x);
-            }
-        }
-
-        return quandle;
-    }
-
-    public static <Element> Quandle<Element> fold(Group<Element> group, int n) {
-        final Quandle<Element> quandle = new Quandle<>(group);
-
-        for (Element x : group.getAllElements()) {
-            for (Element y : group.getAllElements()) {
-                quandle.right(x, y, group.operation(group.operation(group.pow(y, -n), x), group.pow(y, n)));
-            }
-        }
-
-        return quandle;
-    }
-
-    public static <Element> Quandle<Element> dihedral(Group<Element> group) {
-        final Quandle<Element> quandle = new Quandle<>(group);
-
-        for (Element x : group.getAllElements()) {
-            for (Element y : group.getAllElements()) {
-                quandle.right(x, y, group.operation(group.pow(y, 2), group.pow(x, -1)));
-            }
-        }
-
-        return quandle;
-    }
-
-    public static <Element> Quandle<Element> alexander(Group<Element> group, byte t) {
-        final Quandle<Element> quandle = new Quandle<>(group);
-
-        for (Element x : group.getAllElements()) {
-            for (Element y : group.getAllElements()) {
-                quandle.right(x, y, group.operation(group.pow(x, t), group.pow(y, 1 - t)));
-            }
-        }
-
-        return quandle;
-    }
-
-    public boolean isLatin() {
-        for (Element x : getGroup().getAllElements()) {
-            final Set<Element> found = new HashSet<>();
-            for (Element a : getGroup().getAllElements()) {
-                final Element xRy = right(x, a);
-                if (found.contains(xRy)) {
-                    return false;
-                } else {
-                    found.add(xRy);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public boolean isMedial() {
-        final Element unknown = getGroup().getUnknownValue();
-
-        for (Element x : getGroup().getAllElements()) {
-            for (Element y : getGroup().getAllElements()) {
-                final Element xRy = right(x, y);
-
-                for (Element u : getGroup().getAllElements()) {
-                    final Element xRu = right(x, u);
-
-                    for (Element v : getGroup().getAllElements()) {
-                        final Element uRv = right(u, v);
-                        final Element yRv = right(y, v);
-
-                        if (!right(xRy, uRv).equals(unknown)
-                                && !right(xRu, yRv).equals(unknown)
-                                && !right(xRy, uRv).equals(right(xRu, yRv))) {
-
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public static <Element> void generate(Group<Element> group, Consumer<Quandle<Element>> onResult) {
+    public static <Element> void generate(Ring<Element> group, Consumer<Quandle<Element>> onResult) {
         new RecursiveQuandleSearcher<>(onResult, new Quandle<>(group)).invoke();
     }
 
