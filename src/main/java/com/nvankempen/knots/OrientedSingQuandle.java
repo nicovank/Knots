@@ -69,9 +69,21 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
     }
 
     @Override
+    public boolean isComplete() {
+        for (X i : getGroup().getAllElements()) {
+            for (X j : getGroup().getAllElements()) {
+                if (phi(i, j).equals(getGroup().getUnknownValue()) || prime(i, j).equals(getGroup().getUnknownValue())) {
+                    return false;
+                }
+            }
+        }
+
+        return super.isComplete();
+    }
+
+    @Override
     public boolean isValid() {
         // We do not check super.isValid() since we assume the underlying singquandle is already well-defined and valid.
-
         final A unknown = group.getUnknownValue();
 
         for (X x : getGroup().getAllElements()) {
@@ -120,11 +132,11 @@ public class OrientedSingQuandle<X, A> extends SingQuandle<X> {
                     }
 
                     // 5.2
-                    if (!phi(left(y, xCz), x).equals(unknown)
+                    if (!phi(left(y, xCz), z).equals(unknown)
                             && !phi(left(y, xCz), xCz).equals(unknown)
                             && !phi(left(right(y, xDz), z), z).equals(unknown)
                             && !phi(y, xDz).equals(unknown)
-                            && !group.add(phi(left(y, xCz), x), group.getAdditiveInverse(phi(left(y, xCz), xCz)))
+                            && !group.add(phi(left(y, xCz), z), group.getAdditiveInverse(phi(left(y, xCz), xCz)))
                             .equals(group.add(group.getAdditiveInverse(phi(left(right(y, xDz), z), z)), phi(y, xDz)))) {
 
                         return false;
