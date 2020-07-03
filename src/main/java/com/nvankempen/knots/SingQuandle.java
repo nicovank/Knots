@@ -16,6 +16,18 @@ public class SingQuandle<Element> extends Quandle<Element> {
         this.R1 = R1;
     }
 
+    public Map<Doublet<Element, Element>, Element> R2() {
+        final Map<Doublet<Element, Element>, Element> R2 = new HashMap<>();
+
+        for (Element a : getGroup().getAllElements()) {
+            for (Element b : getGroup().getAllElements()) {
+                R2.put(Doublet.create(a, b), R2(a, b));
+            }
+        }
+
+        return R2;
+    }
+
     public Element R1(Element x, Element y) {
         return R1.getOrDefault(Doublet.create(x, y), getGroup().getUnknownValue());
     }
